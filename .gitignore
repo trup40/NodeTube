@@ -1,0 +1,9 @@
+# NPM packages
+node_modules/
+
+# env
+.env
+
+# traces
+.DS_Store
+Thumbs.db
