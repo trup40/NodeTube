@@ -1,0 +1,21 @@
+{
+  "name": "nodetube",
+  "version": "1.0.0",
+  "description": "Özgür ve reklamsız müzik dinleme platformu",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "youtube",
+    "music",
+    "player",
+    "yt-dlp"
+  ],
+  "author": "NodeTube",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
