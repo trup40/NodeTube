@@ -51,6 +51,7 @@ function applyLanguage() {
     document.getElementById('downloadBtn').title = i18n[lang].ttDownload;
     document.getElementById('playerFavBtn').title = i18n[lang].ttFavToggle;
     document.getElementById('volumeBtn').title = i18n[lang].ttVolume;
+    document.getElementById('shuffleBtn').title = i18n[lang].ttShuffle;
     
     document.querySelectorAll('.card-fav-btn').forEach(btn => btn.title = i18n[lang].ttFavToggle);
     document.querySelectorAll('.fav-up').forEach(btn => btn.title = i18n[lang].ttOrderUp);
@@ -82,6 +83,7 @@ let searchVideos = []; let searchHasMore = false;
 let isFavViewActive = false; 
 let viewMode = localStorage.getItem('nodeTubeView') || 'grid'; 
 let globalQueue = []; let currentQueueIndex = -1;
+let isShuffle = false;
 
 const audio = document.getElementById('mainAudio');
 const resultsDiv = document.getElementById('results');
@@ -501,9 +503,23 @@ function startStream(index) {
     };
 }
 
-function playNext() { 
-    if(currentQueueIndex < globalQueue.length - 1) startStream(currentQueueIndex + 1); 
-    else if (globalQueue.length > 0) startStream(0); 
+function toggleShuffle() {
+    isShuffle = !isShuffle;
+    document.getElementById('shuffleBtn').classList.toggle('active', isShuffle);
+}
+
+function playNext() {
+    if(globalQueue.length === 0) return;
+    if(isShuffle && globalQueue.length > 1) {
+        let nextIdx;
+        do {
+            nextIdx = Math.floor(Math.random() * globalQueue.length);
+        } while (nextIdx === currentQueueIndex);
+        startStream(nextIdx);
+    } else {
+        if(currentQueueIndex < globalQueue.length - 1) startStream(currentQueueIndex + 1); 
+        else startStream(0); 
+    }
 }
 
 function playPrevious() { 

@@ -22,7 +22,8 @@ const i18n = {
         confirmDelete: "Bu listeyi silmek istediğinize emin misiniz?",
         btnOk: "Tamam", btnCancel: "İptal", btnYes: "Evet", btnNo: "Hayır",
         ttMoveLeft: "Sola Taşı", ttMoveRight: "Sağa Taşı",
-        resPlayAll: "Tümünü Oynat", resSaveAll: "Tümünü Kaydet"
+        resPlayAll: "Tümünü Oynat", resSaveAll: "Tümünü Kaydet",
+        ttShuffle: "Karışık Çal"
     },
     en: {
         pageTitle: "NodeTube | Free Music", search: "Search songs, artists or paste URL...", loadMore: "LOAD MORE",
@@ -43,6 +44,7 @@ const i18n = {
         confirmDelete: "Are you sure you want to delete this playlist?",
         btnOk: "OK", btnCancel: "Cancel", btnYes: "Yes", btnNo: "No",
         ttMoveLeft: "Move Left", ttMoveRight: "Move Right",
-        resPlayAll: "Play All", resSaveAll: "Save All"
+        resPlayAll: "Play All", resSaveAll: "Save All",
+        ttShuffle: "Shuffle"
     }
 };
