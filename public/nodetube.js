@@ -202,8 +202,15 @@ function startStream(index) {
     };
 }
 
-function playNext() { if(currentQueueIndex < globalQueue.length - 1) startStream(currentQueueIndex + 1); }
-function playPrevious() { if(currentQueueIndex > 0) startStream(currentQueueIndex - 1); }
+function playNext() { 
+    if(currentQueueIndex < globalQueue.length - 1) startStream(currentQueueIndex + 1); 
+    else if (globalQueue.length > 0) startStream(0); 
+}
+
+function playPrevious() { 
+    if(currentQueueIndex > 0) startStream(currentQueueIndex - 1); 
+    else if (globalQueue.length > 0) startStream(globalQueue.length - 1); 
+}
 
 function toggleFav(e, idx, context) {
     e.stopPropagation(); const list = (context === 'fav') ? favoritesList : searchVideos; const video = list[idx];
@@ -252,7 +259,9 @@ function togglePlay() {
     if(audio.paused) { audio.play(); document.getElementById('playBtn').querySelector('i').className = 'fas fa-pause'; }
     else { audio.pause(); document.getElementById('playBtn').querySelector('i').className = 'fas fa-play'; }
 }
+
 function toggleLoop() { audio.loop = !audio.loop; document.getElementById('loopBtn').classList.toggle('active', audio.loop); }
+
 function formatTime(s) { if(isNaN(s)) return "0:00"; const m=Math.floor(s/60), sc=Math.floor(s%60); return `${m}:${sc<10?'0':''}${sc}`; }
 
 audio.ontimeupdate = () => { if(audio.duration) { document.getElementById('progressBar').value = (audio.currentTime/audio.duration)*100; document.getElementById('currentTime').innerText = formatTime(audio.currentTime); } };
