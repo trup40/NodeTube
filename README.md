@@ -10,11 +10,15 @@
 
 ### ✨ Features
 * **Search & Stream**: Instant music searching using `yt-dlp`.
+* **Smart URL Parsing**: Paste YouTube playlist or video links directly into the search bar to instantly load, select, or auto-play content.
 * **Ad-Free Experience**: Pure audio streaming without any YouTube ads.
+* **Advanced Playlists**: Create, rename, delete, and horizontally sort multiple custom playlists with a modern modal interface.
 * **Personal Library**: Add songs to favorites and save them locally using Browser LocalStorage.
-* **Custom Sorting**: Reorder your favorite list with "Move Up/Down" buttons.
+* **Enhanced Player Controls**: Added a sleek vertical volume slider (with click-to-mute), shuffle mode, and continuous playback loop.
 * **M4A Downloads**: Download your favorite tracks directly to your device as high-quality `.m4a` files.
 * **System Integration**: Support for `MediaSession API` to control playback via Windows media panel or lock screen.
+* **ModSecurity Bypass**: Implemented HEX-encoded download routing to flawlessly bypass strict server firewalls (e.g., IIS 403 Forbidden).
+* **Modular Architecture**: Restructured the codebase into clean, separate files (HTML, CSS, JS, i18n) for better maintainability.
 * **Responsive UI**: Optimized for both Desktop and Mobile devices with a beautiful "Exo 2" font.
 * **Light/Dark Mode**: Eye-friendly themes that match your system preference.
 * **Multi-Language**: Full support for English and Turkish interfaces.
@@ -63,11 +67,15 @@ This project is free and open-source. If you find this useful and would like to 
 
 ### ✨ Özellikler
 * **Arama ve Dinleme**: `yt-dlp` kullanarak anlık müzik arama ve oynatma.
+* **Akıllı URL Çözümleme**: Arama çubuğuna doğrudan YouTube çalma listesi veya video linki yapıştırarak anında listeleme, çoklu seçim yapma veya otomatik oynatma.
 * **Reklamsız Deneyim**: Hiçbir YouTube reklamı olmadan kesintisiz müzik keyfi.
+* **Gelişmiş Çalma Listeleri**: Modern bir arayüz ile birden fazla özel çalma listesi oluşturma, yeniden adlandırma, silme ve yatay olarak sıralama.
 * **Kişisel Kütüphane**: Şarkıları favorilere ekleme ve LocalStorage kullanarak tarayıcıda saklama.
-* **Özel Sıralama**: Favori listenizi "Yukarı/Aşağı" butonlarıyla istediğiniz gibi dizme.
+* **Gelişmiş Oynatıcı Kontrolleri**: Şık bir dikey ses sürgüsü (tıklayarak susturma), karışık çalma (shuffle) ve kesintisiz müzik döngüsü (loop) eklendi.
 * **M4A İndirme**: Sevdiğiniz şarkıları yüksek kaliteli `.m4a` dosyası olarak cihaza indirme.
 * **Sistem Entegrasyonu**: Windows medya paneli ve kilit ekranı kontrolleri için `MediaSession API` desteği.
+* **ModSecurity Bypass**: Katı sunucu güvenlik duvarlarını (örn. IIS 403 Forbidden) hatasız aşmak için HEX kodlamalı gelişmiş indirme rotası.
+* **Modüler Mimari**: Daha iyi yönetilebilirlik için kod tabanı temiz ve bağımsız dosyalara (HTML, CSS, JS, i18n) ayrıldı.
 * **Duyarlı Tasarım**: "Exo 2" yazı tipiyle hem masaüstü hem de mobil cihazlar için optimize edilmiş arayüz.
 * **Gece/Gündüz Modu**: Göz yormayan, sistem tercihine uyumlu temalar.
 * **Dil Desteği**: Tamamen Türkçe ve İngilizce arayüz seçeneği.
