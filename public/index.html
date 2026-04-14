@@ -72,7 +72,13 @@
 
     <header>
         <div class="header-top">
-            <h1 onclick="resetApp()">NodeTube</h1>
+            <div class="brand" onclick="resetApp()">
+                <img src="/favicon.svg" alt="NodeTube Logo">
+                <div class="brand-text">
+                    <h1>NodeTube</h1>
+                    <span>by trup40 (Eagle)</span>
+                </div>
+            </div>
             <div class="header-actions">
                 <button class="header-btn" id="langToggleBtn" onclick="toggleLang()"></button>
                 <button class="header-btn" id="viewToggleBtn" onclick="toggleViewMode()"><i class="fas fa-th"></i></button>
