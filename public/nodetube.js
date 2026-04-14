@@ -16,6 +16,9 @@ if (Array.isArray(favData)) {
 let activePlaylist = "default";
 let videoPendingModal = null;
 
+let resolvedVideos = [];
+let resolvedTitle = '';
+
 let lang = localStorage.getItem('nodeTubeLang') || 'tr';
 
 function applyLanguage() {
@@ -31,6 +34,9 @@ function applyLanguage() {
     document.getElementById('ui-input-ok').innerText = i18n[lang].btnOk;
     document.getElementById('ui-confirm-no').innerText = i18n[lang].btnNo;
     document.getElementById('ui-confirm-yes').innerText = i18n[lang].btnYes;
+
+    document.getElementById('ui-res-playall').innerHTML = `<i class="fas fa-play"></i> ${i18n[lang].resPlayAll}`;
+    document.getElementById('ui-res-saveall').innerHTML = `<i class="fas fa-heart"></i> ${i18n[lang].resSaveAll}`;
     
     document.getElementById('langToggleBtn').title = i18n[lang].ttLang;
     document.getElementById('viewToggleBtn').title = i18n[lang].ttView;
@@ -294,11 +300,107 @@ function toggleFavoritesView() {
     }
 }
 
+function openResolveModal(title, videos) {
+    resolvedVideos = videos;
+    resolvedTitle = title || 'Playlist';
+    document.getElementById('resolve-modal-title').innerText = resolvedTitle;
+    
+    const listDiv = document.getElementById('resolve-modal-list');
+    listDiv.innerHTML = '';
+    
+    videos.forEach((v, idx) => {
+        listDiv.innerHTML += `
+            <div class="playlist-option" style="cursor:default;">
+                <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                    <img src="${v.thumbnail}" style="width:50px; height:28px; object-fit:cover; border-radius:4px; flex-shrink:0;">
+                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:13px;">${v.title}</span>
+                </div>
+                <div style="display:flex; gap:5px; flex-shrink:0;">
+                    <button onclick="playResolvedSingle(${idx})" style="background:none; border:none; color:var(--primary); cursor:pointer; padding:5px;"><i class="fas fa-play"></i></button>
+                    <button onclick="addResolvedSingle(${idx})" style="background:none; border:none; color:var(--text-main); cursor:pointer; padding:5px;"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        `;
+    });
+    
+    document.body.style.overflow = 'hidden';
+    document.getElementById('playlist-resolve-modal').style.display = 'flex';
+}
+
+function closeResolveModal() {
+    document.body.style.overflow = '';
+    document.getElementById('playlist-resolve-modal').style.display = 'none';
+    resolvedVideos = [];
+}
+
+function playResolvedAll() {
+    searchVideos = [...resolvedVideos];
+    renderCards(searchVideos);
+    closeResolveModal();
+    playWithContext(0, 'search');
+}
+
+function saveResolvedAll() {
+    openInputModal(i18n[lang].promptNew, resolvedTitle, (name) => {
+        const trimmed = name.trim();
+        if (trimmed && trimmed !== 'default' && !favData[trimmed]) {
+            favData[trimmed] = [...resolvedVideos];
+            activePlaylist = trimmed;
+            saveFavorites();
+            closeResolveModal();
+            isFavViewActive = false; 
+            toggleFavoritesView();
+        }
+    });
+}
+
+function playResolvedSingle(idx) {
+    searchVideos = [resolvedVideos[idx]];
+    renderCards(searchVideos);
+    closeResolveModal();
+    playWithContext(0, 'search');
+}
+
+function addResolvedSingle(idx) {
+    videoPendingModal = resolvedVideos[idx];
+    openFavModal();
+}
+
 async function startNewSearch() {
-    const q = document.getElementById('searchInput').value; if(!q) return;
-    isFavViewActive = false; document.getElementById('favViewBtn').classList.remove('active-fav');
+    const q = document.getElementById('searchInput').value.trim(); 
+    if(!q) return;
+
+    isFavViewActive = false; 
+    document.getElementById('favViewBtn').classList.remove('active-fav');
     document.getElementById('playlist-header').style.display = 'none';
     document.getElementById('playlist-actions').style.display = 'none';
+    document.getElementById('loadMoreBtn').style.display = 'none';
+
+    const isUrl = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/.test(q);
+    const isPlaylist = isUrl && q.includes('list=');
+
+    if (isUrl) {
+        resultsDiv.innerHTML = `<p style="text-align:center; padding-top:50px;"><i class="fas fa-spinner fa-spin"></i> ${i18n[lang].searching}</p>`;
+        try {
+            const res = await fetch(`/resolve?url=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            
+            if (isPlaylist && data.videos.length > 1) {
+                resultsDiv.innerHTML = `<div id="empty-state"><i class="fas fa-list"></i><h3>${data.title || 'Playlist'}</h3><p>${data.videos.length} video</p></div>`;
+                openResolveModal(data.title, data.videos);
+            } else if (data.videos.length > 0) {
+                searchVideos = data.videos;
+                renderCards(searchVideos);
+                playWithContext(0, 'search');
+            } else {
+                resultsDiv.innerHTML = `<p style="text-align:center; color:var(--heart);">${i18n[lang].error}</p>`;
+            }
+        } catch(e) {
+            resultsDiv.innerHTML = `<p style="text-align:center; color:var(--heart);">${i18n[lang].error}</p>`;
+        }
+        return;
+    }
+
     currentQuery = q; currentPage = 1; searchVideos = [];
     resultsDiv.innerHTML = `<p style="text-align:center; padding-top:50px;"><i class="fas fa-spinner fa-spin"></i> ${i18n[lang].searching}</p>`;
     await fetchPage(true);

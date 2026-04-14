@@ -16,7 +16,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 let searchCache = {};
 
-// search
 app.get('/search', (req, res) => {
     const query = req.query.q;
     const page = parseInt(req.query.page) || 1;
@@ -42,16 +41,15 @@ app.get('/search', (req, res) => {
             for (let line of lines) {
                 if (!line) continue;
                 const v = JSON.parse(line);
-                if (v.id) {
+                
+                if (v.id && v.duration > 0 && v.id.length === 11) {
                     let thumbnail = '';
                     if (v.thumbnails && v.thumbnails.length > 0) thumbnail = v.thumbnails[v.thumbnails.length - 1].url;
 
                     let durationStr = "0:00";
-                    if (v.duration) {
-                        const mins = Math.floor(v.duration / 60);
-                        const secs = Math.floor(v.duration % 60);
-                        durationStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                    }
+                    const mins = Math.floor(v.duration / 60);
+                    const secs = Math.floor(v.duration % 60);
+                    durationStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 
                     allVideos.push({
                         id: v.id, title: v.title, thumbnail: thumbnail,
@@ -75,7 +73,48 @@ function sendPaginated(res, allVideos, page, limit) {
     res.json({ videos, hasMore });
 }
 
-// --- stream-
+app.get('/resolve', (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json({ error: 'no url' });
+
+    const exePath = path.join(__dirname, 'yt-dlp.exe');
+    const command = `"${exePath}" "${url}" --dump-json --flat-playlist --no-warnings --no-check-certificates`;
+
+    exec(command, { maxBuffer: 1024 * 1024 * 50 }, (error, stdout, stderr) => {
+        if (error) return res.status(500).json({ error: 'cannot resolve' });
+
+        try {
+            const lines = stdout.trim().split('\n');
+            const allVideos = [];
+            let playlistTitle = '';
+
+            for (let line of lines) {
+                if (!line) continue;
+                const v = JSON.parse(line);
+                if (v.playlist_title && !playlistTitle) playlistTitle = v.playlist_title;
+                
+                if (v.id && v.duration > 0 && v.id.length === 11) {
+                    let thumbnail = '';
+                    if (v.thumbnails && v.thumbnails.length > 0) thumbnail = v.thumbnails[v.thumbnails.length - 1].url;
+
+                    let durationStr = "0:00";
+                    const mins = Math.floor(v.duration / 60);
+                    const secs = Math.floor(v.duration % 60);
+                    durationStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+                    allVideos.push({
+                        id: v.id, title: v.title, thumbnail: thumbnail,
+                        duration: durationStr, author: v.uploader || v.channel || 'YouTube'
+                    });
+                }
+            }
+            res.json({ title: playlistTitle || allVideos[0]?.title || 'Playlist', videos: allVideos });
+        } catch (err) {
+            res.status(500).json({ error: 'cannot parse' });
+        }
+    });
+});
+
 app.get('/stream', async (req, res) => {
     const videoId = req.query.id;
     if (!videoId) return res.status(400).send('no video id.');
@@ -101,7 +140,6 @@ app.get('/stream', async (req, res) => {
     } catch (error) { if (!res.headersSent) res.status(500).send('server error.'); }
 });
 
-// --- download
 app.get('/download', (req, res) => {
     const videoId = req.query.id;
     let rawTitle = 'NodeTube_Audio';
@@ -122,7 +160,7 @@ app.get('/download', (req, res) => {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
     const exePath = path.join(__dirname, 'yt-dlp.exe');
 
-    const ytDlpProcess = require('child_process').spawn(exePath, [
+    const ytDlpProcess = spawn(exePath, [
         '-f', 'm4a/bestaudio',
         '-o', '-', 
         '--no-warnings',

@@ -44,11 +44,11 @@ body { font-family: 'Exo 2', system-ui, sans-serif; background: linear-gradient(
 .close-modal-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.2s; }
 .close-modal-btn:hover { color: var(--heart); }
 
-#modal-playlist-options { overflow-y: auto; flex: 1; min-height: 0; padding-right: 5px; scrollbar-width: thin; scrollbar-color: var(--text-muted) transparent; }
-#modal-playlist-options::-webkit-scrollbar { width: 6px; }
-#modal-playlist-options::-webkit-scrollbar-track { background: transparent; }
-#modal-playlist-options::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; }
-#modal-playlist-options::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+#modal-playlist-options, #resolve-modal-list { overflow-y: auto; flex: 1; min-height: 0; padding-right: 5px; scrollbar-width: thin; scrollbar-color: var(--text-muted) transparent; }
+#modal-playlist-options::-webkit-scrollbar, #resolve-modal-list::-webkit-scrollbar { width: 6px; }
+#modal-playlist-options::-webkit-scrollbar-track, #resolve-modal-list::-webkit-scrollbar-track { background: transparent; }
+#modal-playlist-options::-webkit-scrollbar-thumb, #resolve-modal-list::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; }
+#modal-playlist-options::-webkit-scrollbar-thumb:hover, #resolve-modal-list::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 .playlist-option { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 8px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
 .playlist-option:hover { border-color: var(--primary); background: var(--surface-hover); }
