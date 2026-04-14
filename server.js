@@ -108,7 +108,7 @@ app.get('/download', (req, res) => {
 
     if (req.query.t) {
         try {
-            rawTitle = Buffer.from(req.query.t, 'base64').toString('utf-8');
+            rawTitle = Buffer.from(req.query.t, 'hex').toString('utf8');
         } catch(e) {}
     }
 

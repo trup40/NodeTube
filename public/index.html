@@ -517,7 +517,12 @@
 
         function downloadCurrent() {
             if(currentQueueIndex === -1) return;
-            window.location.href = `/download?id=${globalQueue[currentQueueIndex].id}&t=${btoa(unescape(encodeURIComponent(globalQueue[currentQueueIndex].title)))}`;
+            const track = globalQueue[currentQueueIndex];
+            const utf8Encoder = new TextEncoder();
+            const bytes = utf8Encoder.encode(track.title);
+            const hexTitle = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            window.location.href = `/download?id=${track.id}&t=${hexTitle}`;
         }
 
         function toggleTheme() {
