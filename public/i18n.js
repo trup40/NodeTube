@@ -15,7 +15,13 @@ const i18n = {
         ttPrev: "Önceki Şarkı", ttPlay: "Oynat / Duraklat", ttNext: "Sonraki Şarkı",
         ttLoop: "Sürekli Tekrar", ttDownload: "M4A Olarak İndir", ttFavToggle: "Listelere Ekle / Çıkar",
         ttVolume: "Ses Seviyesi",
-        modalTitle: "Listeye Ekle", newPlaylist: "Yeni liste adı..."
+        modalTitle: "Listeye Ekle", newPlaylist: "Yeni liste adı...",
+        renamePl: "Yeniden Adlandır", deletePl: "Listeyi Sil",
+        defaultPlaylist: "Favorilerim",
+        promptRename: "Yeni liste adını girin:", promptNew: "Oluşturulacak listenin adı:",
+        confirmDelete: "Bu listeyi silmek istediğinize emin misiniz?",
+        btnOk: "Tamam", btnCancel: "İptal", btnYes: "Evet", btnNo: "Hayır",
+        ttMoveLeft: "Sola Taşı", ttMoveRight: "Sağa Taşı"
     },
     en: {
         pageTitle: "NodeTube | Free Music", search: "Search songs, artists...", loadMore: "LOAD MORE",
@@ -29,6 +35,12 @@ const i18n = {
         ttPrev: "Previous Track", ttPlay: "Play / Pause", ttNext: "Next Track",
         ttLoop: "Toggle Loop", ttDownload: "Download as M4A", ttFavToggle: "Add to / Remove from Playlists",
         ttVolume: "Volume",
-        modalTitle: "Add to Playlist", newPlaylist: "New playlist name..."
+        modalTitle: "Add to Playlist", newPlaylist: "New playlist name...",
+        renamePl: "Rename", deletePl: "Delete Playlist",
+        defaultPlaylist: "My Favorites",
+        promptRename: "Enter new playlist name:", promptNew: "Name for the new playlist:",
+        confirmDelete: "Are you sure you want to delete this playlist?",
+        btnOk: "OK", btnCancel: "Cancel", btnYes: "Yes", btnNo: "No",
+        ttMoveLeft: "Move Left", ttMoveRight: "Move Right"
     }
 };

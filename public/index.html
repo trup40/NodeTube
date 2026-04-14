@@ -30,7 +30,28 @@
             <div id="modal-playlist-options"></div>
             <div class="new-playlist-row">
                 <input type="text" id="new-playlist-name">
-                <button onclick="createNewPlaylist()"><i class="fas fa-plus"></i></button>
+                <button onclick="createNewPlaylistFromModal()"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="input-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) closeInputModal()">
+        <div class="modal-content" style="max-width: 350px;">
+            <h3 id="input-modal-title" style="margin-bottom:15px; font-size:18px; color:var(--text-main);"></h3>
+            <input type="text" id="input-modal-value" style="width:100%; padding:12px 15px; border-radius:10px; border:1px solid var(--border); background:var(--input-bg); color:var(--text-main); font-family:'Exo 2', sans-serif; outline:none; margin-bottom:20px; font-size:15px;">
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button onclick="closeInputModal()" class="tab-btn" id="ui-input-cancel"></button>
+                <button id="ui-input-ok" class="tab-btn active"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) closeConfirmModal()">
+        <div class="modal-content" style="max-width: 350px;">
+            <p id="confirm-modal-msg" style="margin-bottom:20px; font-size:16px; color:var(--text-main); line-height:1.5; font-weight:600;"></p>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button onclick="closeConfirmModal()" class="tab-btn" id="ui-confirm-no"></button>
+                <button id="ui-confirm-yes" class="tab-btn" style="background:var(--heart); border-color:var(--heart); color:white;"></button>
             </div>
         </div>
     </div>
@@ -54,7 +75,12 @@
         </div>
     </header>
 
-    <div id="playlist-tabs-container" class="playlist-tabs-container" style="display:none;"></div>
+    <div id="playlist-header" class="playlist-header" style="display:none;">
+        <button class="tab-btn" onclick="promptNewPlaylist()" style="padding: 8px 12px; flex-shrink: 0;"><i class="fas fa-plus"></i></button>
+        <div id="playlist-tabs-container" class="playlist-tabs-container"></div>
+    </div>
+    
+    <div id="playlist-actions" class="playlist-actions" style="display:none;"></div>
 
     <div id="results" class="grid-view">
         <div id="empty-state">
@@ -69,16 +95,13 @@
     <div id="player-wrapper">
         <div id="now-playing"></div>
         <div class="player-controls">
-            
             <div class="mobile-buttons">
                 <div class="play-btns">
                     <button class="icon-btn" id="prevBtn" onclick="playPrevious()"><i class="fas fa-step-backward"></i></button>
                     <button id="playBtn" onclick="togglePlay()"><i class="fas fa-play"></i></button>
                     <button class="icon-btn" id="nextBtn" onclick="playNext()"><i class="fas fa-step-forward"></i></button>
                 </div>
-                
                 <div class="mobile-separator"></div>
-
                 <div class="action-btns">
                     <div class="volume-container" id="volumeContainer">
                         <button class="icon-btn" id="volumeBtn" onclick="handleVolumeClick()"><i class="fas fa-volume-up" id="volumeIcon"></i></button>
@@ -86,19 +109,16 @@
                             <input type="range" id="volumeBar" min="0" max="1" step="0.05" value="1" oninput="changeVolume(this.value)">
                         </div>
                     </div>
-                    
                     <button class="icon-btn" id="loopBtn" onclick="toggleLoop()"><i class="fas fa-redo"></i></button>
                     <button class="icon-btn" id="downloadBtn" onclick="downloadCurrent()"><i class="fas fa-download"></i></button>
                     <button class="icon-btn" id="playerFavBtn" onclick="togglePlayerFavorite()"><i class="far fa-heart"></i></button>
                 </div>
             </div>
-
             <div class="progress-row">
                 <span class="time-display" id="currentTime">0:00</span>
                 <input type="range" id="progressBar" value="0" step="0.1">
                 <span class="time-display" id="durationTime">0:00</span>
             </div>
-
         </div>
         <audio id="mainAudio" preload="metadata"></audio>
     </div>

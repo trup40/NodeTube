@@ -4,12 +4,16 @@
 
 let favData = JSON.parse(localStorage.getItem('nodeTubeFavs'));
 if (Array.isArray(favData)) {
-    favData = { "Favorilerim": favData };
+    favData = { "default": favData };
     localStorage.setItem('nodeTubeFavs', JSON.stringify(favData));
 } else if (!favData) {
-    favData = { "Favorilerim": [] };
+    favData = { "default": [] };
+} else if (favData["Favorilerim"]) {
+    favData["default"] = favData["Favorilerim"];
+    delete favData["Favorilerim"];
+    localStorage.setItem('nodeTubeFavs', JSON.stringify(favData));
 }
-let activePlaylist = "Favorilerim";
+let activePlaylist = "default";
 let videoPendingModal = null;
 
 let lang = localStorage.getItem('nodeTubeLang') || 'tr';
@@ -22,6 +26,11 @@ function applyLanguage() {
     document.getElementById('ui-load').innerText = i18n[lang].loadMore;
     document.getElementById('ui-modal-title').innerText = i18n[lang].modalTitle;
     document.getElementById('new-playlist-name').placeholder = i18n[lang].newPlaylist;
+    
+    document.getElementById('ui-input-cancel').innerText = i18n[lang].btnCancel;
+    document.getElementById('ui-input-ok').innerText = i18n[lang].btnOk;
+    document.getElementById('ui-confirm-no').innerText = i18n[lang].btnNo;
+    document.getElementById('ui-confirm-yes').innerText = i18n[lang].btnYes;
     
     document.getElementById('langToggleBtn').title = i18n[lang].ttLang;
     document.getElementById('viewToggleBtn').title = i18n[lang].ttView;
@@ -48,6 +57,8 @@ function applyLanguage() {
         np.innerText = `${audio.paused ? i18n[lang].prep : i18n[lang].play}: ${globalQueue[currentQueueIndex].title}`;
         document.title = `▶ ${globalQueue[currentQueueIndex].title} | NodeTube`;
     }
+    
+    if(isFavViewActive) renderFavoritesView();
 }
 
 function toggleLang() { lang = lang === 'tr' ? 'en' : 'tr'; localStorage.setItem('nodeTubeLang', lang); applyLanguage(); }
@@ -90,7 +101,8 @@ function clearSearch() {
 
 function resetApp() {
     searchVideos = [];
-    document.getElementById('playlist-tabs-container').style.display = 'none';
+    document.getElementById('playlist-header').style.display = 'none';
+    document.getElementById('playlist-actions').style.display = 'none';
     resultsDiv.innerHTML = `<div id="empty-state"><i class="fas fa-headphones"></i><h3 id="ui-empty-title">${i18n[lang].emptyTitle}</h3><p id="ui-empty-desc">${i18n[lang].emptyDesc}</p></div>`;
     document.getElementById('loadMoreBtn').style.display = 'none'; document.title = i18n[lang].pageTitle;
 }
@@ -101,17 +113,79 @@ function checkIsFav(id) {
     return Object.values(favData).some(list => list.some(v => v.id === id));
 }
 
-function renderFavoritesView() {
-    const tabsContainer = document.getElementById('playlist-tabs-container');
-    tabsContainer.style.display = 'flex';
+let inputModalCallback = null;
+function openInputModal(title, defaultValue, callback) {
+    document.body.style.overflow = 'hidden';
+    document.getElementById('input-modal-title').innerText = title;
+    const input = document.getElementById('input-modal-value');
+    input.value = defaultValue || '';
+    document.getElementById('input-modal').style.display = 'flex';
+    input.focus();
+    inputModalCallback = callback;
+}
+function closeInputModal() { 
+    document.body.style.overflow = '';
+    document.getElementById('input-modal').style.display = 'none'; 
+    inputModalCallback = null; 
+}
+document.getElementById('ui-input-ok').onclick = () => {
+    if(inputModalCallback) inputModalCallback(document.getElementById('input-modal-value').value);
+    closeInputModal();
+};
+document.getElementById('input-modal-value').onkeypress = (e) => {
+    if(e.key === 'Enter') document.getElementById('ui-input-ok').click();
+};
 
-    if (!favData[activePlaylist]) activePlaylist = Object.keys(favData)[0] || "Favorilerim";
+let confirmModalCallback = null;
+function openConfirmModal(msg, callback) {
+    document.body.style.overflow = 'hidden';
+    document.getElementById('confirm-modal-msg').innerText = msg;
+    document.getElementById('confirm-modal').style.display = 'flex';
+    confirmModalCallback = callback;
+}
+function closeConfirmModal() { 
+    document.body.style.overflow = '';
+    document.getElementById('confirm-modal').style.display = 'none'; 
+    confirmModalCallback = null; 
+}
+document.getElementById('ui-confirm-yes').onclick = () => {
+    if(confirmModalCallback) confirmModalCallback();
+    closeConfirmModal();
+};
+
+function renderFavoritesView() {
+    const header = document.getElementById('playlist-header');
+    const tabsContainer = document.getElementById('playlist-tabs-container');
+    const actionsContainer = document.getElementById('playlist-actions');
+    header.style.display = 'flex';
+
+    if (!favData[activePlaylist]) activePlaylist = Object.keys(favData)[0] || "default";
 
     let tabsHtml = '';
-    Object.keys(favData).forEach(pName => {
-        tabsHtml += `<button class="tab-btn ${pName === activePlaylist ? 'active' : ''}" onclick="switchPlaylist('${pName}')">${pName}</button>`;
+    Object.keys(favData).forEach(pKey => {
+        const dispName = pKey === 'default' ? i18n[lang].defaultPlaylist : pKey;
+        tabsHtml += `<button class="tab-btn ${pKey === activePlaylist ? 'active' : ''}" onclick="switchPlaylist('${pKey}')">${dispName}</button>`;
     });
     tabsContainer.innerHTML = tabsHtml;
+
+    if (activePlaylist !== 'default') {
+        actionsContainer.style.display = 'flex';
+        
+        const keys = Object.keys(favData);
+        const idx = keys.indexOf(activePlaylist);
+        const canMoveLeft = idx > 1; 
+        const canMoveRight = idx > 0 && idx < keys.length - 1;
+
+        actionsContainer.innerHTML = `
+            <button onclick="moveActivePlaylist(-1)" title="${i18n[lang].ttMoveLeft}" ${!canMoveLeft ? 'style="opacity:0.3; cursor:not-allowed;" disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+            <button onclick="moveActivePlaylist(1)" title="${i18n[lang].ttMoveRight}" ${!canMoveRight ? 'style="opacity:0.3; cursor:not-allowed;" disabled' : ''}><i class="fas fa-chevron-right"></i></button>
+            <div style="width: 1px; height: 14px; background: var(--border); margin: 0 5px;"></div>
+            <button onclick="renameActivePlaylist()"><i class="fas fa-edit"></i> ${i18n[lang].renamePl}</button>
+            <button class="delete-btn" onclick="deleteActivePlaylist()"><i class="fas fa-trash"></i> ${i18n[lang].deletePl}</button>
+        `;
+    } else {
+        actionsContainer.style.display = 'none';
+    }
 
     const list = favData[activePlaylist] || [];
     if (list.length === 0) {
@@ -119,6 +193,82 @@ function renderFavoritesView() {
     } else {
         renderCards(list);
     }
+}
+
+function moveActivePlaylist(direction) {
+    if (activePlaylist === 'default') return;
+    const keys = Object.keys(favData);
+    const idx = keys.indexOf(activePlaylist);
+    const newIdx = idx + direction;
+
+    if (newIdx <= 0 || newIdx >= keys.length) return;
+
+    const temp = keys[idx];
+    keys[idx] = keys[newIdx];
+    keys[newIdx] = temp;
+
+    const newData = {};
+    keys.forEach(k => newData[k] = favData[k]);
+    favData = newData;
+    
+    saveFavorites();
+    renderFavoritesView();
+
+    setTimeout(() => {
+        const activeTab = document.querySelector('.tab-btn.active');
+        if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }, 50);
+}
+
+function promptNewPlaylist() {
+    openInputModal(i18n[lang].promptNew, "", (name) => {
+        const trimmed = name.trim();
+        if (trimmed && trimmed !== 'default' && !favData[trimmed]) {
+            favData[trimmed] = [];
+            activePlaylist = trimmed;
+            saveFavorites();
+            renderFavoritesView();
+            setTimeout(() => {
+                const tabsContainer = document.getElementById('playlist-tabs-container');
+                tabsContainer.scrollLeft = tabsContainer.scrollWidth;
+            }, 50);
+        }
+    });
+}
+
+function renameActivePlaylist() {
+    if(activePlaylist === 'default') return;
+    openInputModal(i18n[lang].promptRename, activePlaylist, (newName) => {
+        if (newName && newName.trim() !== '' && newName !== activePlaylist) {
+            const trimmed = newName.trim();
+            if (trimmed === 'default' || favData[trimmed]) return;
+            
+            const keys = Object.keys(favData);
+            const newData = {};
+            keys.forEach(k => {
+                if(k === activePlaylist) {
+                    newData[trimmed] = favData[activePlaylist];
+                } else {
+                    newData[k] = favData[k];
+                }
+            });
+            favData = newData;
+            activePlaylist = trimmed;
+            
+            saveFavorites();
+            renderFavoritesView();
+        }
+    });
+}
+
+function deleteActivePlaylist() {
+    if(activePlaylist === 'default') return;
+    openConfirmModal(i18n[lang].confirmDelete, () => {
+        delete favData[activePlaylist];
+        activePlaylist = "default";
+        saveFavorites();
+        renderFavoritesView();
+    });
 }
 
 function switchPlaylist(name) {
@@ -129,14 +279,16 @@ function switchPlaylist(name) {
 function toggleFavoritesView() {
     isFavViewActive = !isFavViewActive;
     const favBtn = document.getElementById('favViewBtn'); const loadBtn = document.getElementById('loadMoreBtn');
-    const tabsContainer = document.getElementById('playlist-tabs-container');
+    const header = document.getElementById('playlist-header');
+    const actionsContainer = document.getElementById('playlist-actions');
     
     if (isFavViewActive) {
         favBtn.classList.add('active-fav'); loadBtn.style.display = 'none';
         renderFavoritesView();
     } else {
         favBtn.classList.remove('active-fav');
-        tabsContainer.style.display = 'none';
+        header.style.display = 'none';
+        actionsContainer.style.display = 'none';
         if(searchVideos.length > 0) { renderCards(searchVideos); loadBtn.style.display = searchHasMore ? 'inline-block' : 'none'; } 
         else resetApp();
     }
@@ -145,7 +297,8 @@ function toggleFavoritesView() {
 async function startNewSearch() {
     const q = document.getElementById('searchInput').value; if(!q) return;
     isFavViewActive = false; document.getElementById('favViewBtn').classList.remove('active-fav');
-    document.getElementById('playlist-tabs-container').style.display = 'none';
+    document.getElementById('playlist-header').style.display = 'none';
+    document.getElementById('playlist-actions').style.display = 'none';
     currentQuery = q; currentPage = 1; searchVideos = [];
     resultsDiv.innerHTML = `<p style="text-align:center; padding-top:50px;"><i class="fas fa-spinner fa-spin"></i> ${i18n[lang].searching}</p>`;
     await fetchPage(true);
@@ -256,7 +409,6 @@ function playPrevious() {
     else if (globalQueue.length > 0) startStream(globalQueue.length - 1); 
 }
 
-/* YENİ MODAL & ÇOKLU LİSTE FONKSİYONLARI */
 function toggleFav(e, idx, context) {
     e.stopPropagation();
     const list = (context === 'fav') ? favData[activePlaylist] : searchVideos;
@@ -271,11 +423,13 @@ function togglePlayerFavorite() {
 }
 
 function openFavModal() {
+    document.body.style.overflow = 'hidden';
     document.getElementById('fav-modal').style.display = 'flex';
     renderModalPlaylists();
 }
 
 function closeFavModal() {
+    document.body.style.overflow = '';
     document.getElementById('fav-modal').style.display = 'none';
     videoPendingModal = null;
     if(isFavViewActive) renderFavoritesView();
@@ -286,19 +440,20 @@ function closeFavModal() {
 function renderModalPlaylists() {
     const container = document.getElementById('modal-playlist-options');
     container.innerHTML = '';
-    Object.keys(favData).forEach(pName => {
-        const isInList = favData[pName].some(v => v.id === videoPendingModal.id);
+    Object.keys(favData).forEach(pKey => {
+        const isInList = favData[pKey].some(v => v.id === videoPendingModal.id);
+        const dispName = pKey === 'default' ? i18n[lang].defaultPlaylist : pKey;
         container.innerHTML += `
-            <div class="playlist-option" onclick="toggleVideoInPlaylist('${pName}')">
-                <span>${pName}</span>
+            <div class="playlist-option" onclick="toggleVideoInPlaylist('${pKey}')">
+                <span>${dispName}</span>
                 <i class="${isInList ? 'fas fa-check-circle' : 'far fa-circle'}" style="color: ${isInList ? 'var(--primary)' : 'var(--text-muted)'}"></i>
             </div>
         `;
     });
 }
 
-function toggleVideoInPlaylist(pName) {
-    const list = favData[pName];
+function toggleVideoInPlaylist(pKey) {
+    const list = favData[pKey];
     const idx = list.findIndex(v => v.id === videoPendingModal.id);
     if (idx > -1) list.splice(idx, 1);
     else list.push(videoPendingModal);
@@ -306,10 +461,10 @@ function toggleVideoInPlaylist(pName) {
     renderModalPlaylists();
 }
 
-function createNewPlaylist() {
+function createNewPlaylistFromModal() {
     const input = document.getElementById('new-playlist-name');
     const name = input.value.trim();
-    if (name && !favData[name]) {
+    if (name && name !== 'default' && !favData[name]) {
         favData[name] = [];
         favData[name].push(videoPendingModal);
         saveFavorites();
