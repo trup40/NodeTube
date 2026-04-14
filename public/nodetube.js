@@ -384,7 +384,11 @@ async function startNewSearch() {
     if (isUrl) {
         resultsDiv.innerHTML = `<p style="text-align:center; padding-top:50px;"><i class="fas fa-spinner fa-spin"></i> ${i18n[lang].searching}</p>`;
         try {
-            const res = await fetch(`/resolve?url=${encodeURIComponent(q)}`);
+            const utf8Encoder = new TextEncoder();
+            const bytes = utf8Encoder.encode(q);
+            const hexUrl = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+
+            const res = await fetch(`/resolve?url=${hexUrl}`);
             const data = await res.json();
             
             if (isPlaylist && data.videos.length > 1) {

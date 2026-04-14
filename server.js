@@ -74,7 +74,14 @@ function sendPaginated(res, allVideos, page, limit) {
 }
 
 app.get('/resolve', (req, res) => {
-    const url = req.query.url;
+    let url = '';
+    
+    if (req.query.url) {
+        try {
+            url = Buffer.from(req.query.url, 'hex').toString('utf8');
+        } catch(e) {}
+    }
+
     if (!url) return res.status(400).json({ error: 'no url' });
 
     const exePath = path.join(__dirname, 'yt-dlp.exe');
