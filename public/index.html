@@ -1,7 +1,7 @@
 <!-- by trup40 (Eagle)-->
 <!-- https://github.com/trup40/NodeTube-->
 <!-- 2026 -->
- 
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -17,8 +17,22 @@
 
     <div id="preparing-popup">
         <i class="fas fa-compact-disc"></i>
-        <h2 id="ui-prep-title">Bağlantı Kuruluyor</h2>
-        <p id="ui-prep-desc" style="color: var(--text-muted); font-size: 14px;">NodeTube optimize ediliyor...</p>
+        <h2 id="ui-prep-title"></h2>
+        <p id="ui-prep-desc"></p>
+    </div>
+
+    <div id="fav-modal" class="modal-overlay" onclick="if(event.target===this) closeFavModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="ui-modal-title"></h3>
+                <button class="close-modal-btn" onclick="closeFavModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modal-playlist-options"></div>
+            <div class="new-playlist-row">
+                <input type="text" id="new-playlist-name">
+                <button onclick="createNewPlaylist()"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
     </div>
 
     <header>
@@ -39,6 +53,8 @@
             <button class="main-btn" id="searchBtn" onclick="startNewSearch()"><i class="fas fa-search"></i></button>
         </div>
     </header>
+
+    <div id="playlist-tabs-container" class="playlist-tabs-container" style="display:none;"></div>
 
     <div id="results" class="grid-view">
         <div id="empty-state">

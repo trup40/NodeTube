@@ -2,6 +2,16 @@
 // https://github.com/trup40/NodeTube
 // 2026
 
+let favData = JSON.parse(localStorage.getItem('nodeTubeFavs'));
+if (Array.isArray(favData)) {
+    favData = { "Favorilerim": favData };
+    localStorage.setItem('nodeTubeFavs', JSON.stringify(favData));
+} else if (!favData) {
+    favData = { "Favorilerim": [] };
+}
+let activePlaylist = "Favorilerim";
+let videoPendingModal = null;
+
 let lang = localStorage.getItem('nodeTubeLang') || 'tr';
 
 function applyLanguage() {
@@ -10,6 +20,8 @@ function applyLanguage() {
     document.getElementById('ui-prep-title').innerText = i18n[lang].prepTitle;
     document.getElementById('ui-prep-desc').innerText = i18n[lang].prepDesc;
     document.getElementById('ui-load').innerText = i18n[lang].loadMore;
+    document.getElementById('ui-modal-title').innerText = i18n[lang].modalTitle;
+    document.getElementById('new-playlist-name').placeholder = i18n[lang].newPlaylist;
     
     document.getElementById('langToggleBtn').title = i18n[lang].ttLang;
     document.getElementById('viewToggleBtn').title = i18n[lang].ttView;
@@ -50,7 +62,6 @@ function updateEmptyState() {
 
 let currentQuery = ''; let currentPage = 1;
 let searchVideos = []; let searchHasMore = false; 
-let favoritesList = JSON.parse(localStorage.getItem('nodeTubeFavs')) || [];
 let isFavViewActive = false; 
 let viewMode = localStorage.getItem('nodeTubeView') || 'grid'; 
 let globalQueue = []; let currentQueueIndex = -1;
@@ -79,22 +90,53 @@ function clearSearch() {
 
 function resetApp() {
     searchVideos = [];
+    document.getElementById('playlist-tabs-container').style.display = 'none';
     resultsDiv.innerHTML = `<div id="empty-state"><i class="fas fa-headphones"></i><h3 id="ui-empty-title">${i18n[lang].emptyTitle}</h3><p id="ui-empty-desc">${i18n[lang].emptyDesc}</p></div>`;
     document.getElementById('loadMoreBtn').style.display = 'none'; document.title = i18n[lang].pageTitle;
 }
 
-function saveFavorites() { localStorage.setItem('nodeTubeFavs', JSON.stringify(favoritesList)); }
-function checkIsFav(id) { return favoritesList.some(f => f.id === id); }
+function saveFavorites() { localStorage.setItem('nodeTubeFavs', JSON.stringify(favData)); }
+
+function checkIsFav(id) {
+    return Object.values(favData).some(list => list.some(v => v.id === id));
+}
+
+function renderFavoritesView() {
+    const tabsContainer = document.getElementById('playlist-tabs-container');
+    tabsContainer.style.display = 'flex';
+
+    if (!favData[activePlaylist]) activePlaylist = Object.keys(favData)[0] || "Favorilerim";
+
+    let tabsHtml = '';
+    Object.keys(favData).forEach(pName => {
+        tabsHtml += `<button class="tab-btn ${pName === activePlaylist ? 'active' : ''}" onclick="switchPlaylist('${pName}')">${pName}</button>`;
+    });
+    tabsContainer.innerHTML = tabsHtml;
+
+    const list = favData[activePlaylist] || [];
+    if (list.length === 0) {
+        resultsDiv.innerHTML = `<div id="empty-state"><i class="far fa-heart"></i><h3>${i18n[lang].favTitle}</h3><p>${i18n[lang].favDesc}</p></div>`;
+    } else {
+        renderCards(list);
+    }
+}
+
+function switchPlaylist(name) {
+    activePlaylist = name;
+    renderFavoritesView();
+}
 
 function toggleFavoritesView() {
     isFavViewActive = !isFavViewActive;
     const favBtn = document.getElementById('favViewBtn'); const loadBtn = document.getElementById('loadMoreBtn');
+    const tabsContainer = document.getElementById('playlist-tabs-container');
+    
     if (isFavViewActive) {
         favBtn.classList.add('active-fav'); loadBtn.style.display = 'none';
-        if(favoritesList.length===0) resultsDiv.innerHTML = `<div id="empty-state"><i class="far fa-heart"></i><h3>${i18n[lang].favTitle}</h3><p>${i18n[lang].favDesc}</p></div>`;
-        else renderCards(favoritesList);
+        renderFavoritesView();
     } else {
         favBtn.classList.remove('active-fav');
+        tabsContainer.style.display = 'none';
         if(searchVideos.length > 0) { renderCards(searchVideos); loadBtn.style.display = searchHasMore ? 'inline-block' : 'none'; } 
         else resetApp();
     }
@@ -103,6 +145,7 @@ function toggleFavoritesView() {
 async function startNewSearch() {
     const q = document.getElementById('searchInput').value; if(!q) return;
     isFavViewActive = false; document.getElementById('favViewBtn').classList.remove('active-fav');
+    document.getElementById('playlist-tabs-container').style.display = 'none';
     currentQuery = q; currentPage = 1; searchVideos = [];
     resultsDiv.innerHTML = `<p style="text-align:center; padding-top:50px;"><i class="fas fa-spinner fa-spin"></i> ${i18n[lang].searching}</p>`;
     await fetchPage(true);
@@ -125,26 +168,27 @@ async function fetchPage(isNew = false) {
 
 function moveFav(index, direction, event) {
     event.stopPropagation();
+    const list = favData[activePlaylist];
     const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= favoritesList.length) return;
+    if (newIndex < 0 || newIndex >= list.length) return;
 
-    const temp = favoritesList[index];
-    favoritesList[index] = favoritesList[newIndex];
-    favoritesList[newIndex] = temp;
+    const temp = list[index];
+    list[index] = list[newIndex];
+    list[newIndex] = temp;
     saveFavorites();
 
     if (isFavViewActive && currentQueueIndex !== -1) {
         const playingId = globalQueue[currentQueueIndex].id;
-        globalQueue = [...favoritesList];
+        globalQueue = [...list];
         currentQueueIndex = globalQueue.findIndex(v => v.id === playingId);
     }
-    renderCards(favoritesList);
+    renderFavoritesView();
 }
 
 function renderCards(list) {
     resultsDiv.innerHTML = ''; const context = isFavViewActive ? 'fav' : 'search';
     list.forEach((v, idx) => {
-        const isFav = checkIsFav(v.id); const safeVideoStr = encodeURIComponent(JSON.stringify(v));
+        const isFav = checkIsFav(v.id);
         const card = document.createElement('div'); card.className = 'card'; card.id = `card-${v.id}`;
         card.onclick = () => playWithContext(idx, context);
         
@@ -161,7 +205,7 @@ function renderCards(list) {
 
         card.innerHTML = `
             ${orderBadgeHtml}
-            <button class="card-fav-btn ${isFav ? 'loved' : ''}" data-id="${v.id}" onclick="toggleFav(event, ${idx}, '${context}')" title="${i18n[lang].ttFavToggle}">
+            <button class="card-fav-btn ${isFav ? 'loved' : ''}" onclick="toggleFav(event, ${idx}, '${context}')" title="${i18n[lang].ttFavToggle}">
                 <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
             </button>
             <img src="${v.thumbnail}" loading="lazy">
@@ -175,7 +219,7 @@ function renderCards(list) {
     highlightCard();
 }
 
-function playWithContext(index, context) { globalQueue = (context === 'fav') ? [...favoritesList] : [...searchVideos]; startStream(index); }
+function playWithContext(index, context) { globalQueue = (context === 'fav') ? [...favData[activePlaylist]] : [...searchVideos]; startStream(index); }
 
 function startStream(index) {
     if(index < 0 || index >= globalQueue.length) return;
@@ -212,19 +256,66 @@ function playPrevious() {
     else if (globalQueue.length > 0) startStream(globalQueue.length - 1); 
 }
 
+/* YENİ MODAL & ÇOKLU LİSTE FONKSİYONLARI */
 function toggleFav(e, idx, context) {
-    e.stopPropagation(); const list = (context === 'fav') ? favoritesList : searchVideos; const video = list[idx];
-    if(checkIsFav(video.id)) favoritesList = favoritesList.filter(f => f.id !== video.id); else favoritesList.push(video);
-    saveFavorites();
-    
-    if(isFavViewActive) {
-        if(favoritesList.length===0) resultsDiv.innerHTML = `<div id="empty-state"><i class="far fa-heart"></i><h3>${i18n[lang].favTitle}</h3><p>${i18n[lang].favDesc}</p></div>`;
-        else renderCards(favoritesList);
-    } else {
-        const btn = e.currentTarget; btn.classList.toggle('loved');
-        btn.querySelector('i').className = checkIsFav(video.id) ? 'fas fa-heart' : 'far fa-heart';
-    }
+    e.stopPropagation();
+    const list = (context === 'fav') ? favData[activePlaylist] : searchVideos;
+    videoPendingModal = list[idx];
+    openFavModal();
+}
+
+function togglePlayerFavorite() {
+    if(currentQueueIndex === -1) return;
+    videoPendingModal = globalQueue[currentQueueIndex];
+    openFavModal();
+}
+
+function openFavModal() {
+    document.getElementById('fav-modal').style.display = 'flex';
+    renderModalPlaylists();
+}
+
+function closeFavModal() {
+    document.getElementById('fav-modal').style.display = 'none';
+    videoPendingModal = null;
+    if(isFavViewActive) renderFavoritesView();
+    else renderCards(searchVideos);
     updatePlayerHeart();
+}
+
+function renderModalPlaylists() {
+    const container = document.getElementById('modal-playlist-options');
+    container.innerHTML = '';
+    Object.keys(favData).forEach(pName => {
+        const isInList = favData[pName].some(v => v.id === videoPendingModal.id);
+        container.innerHTML += `
+            <div class="playlist-option" onclick="toggleVideoInPlaylist('${pName}')">
+                <span>${pName}</span>
+                <i class="${isInList ? 'fas fa-check-circle' : 'far fa-circle'}" style="color: ${isInList ? 'var(--primary)' : 'var(--text-muted)'}"></i>
+            </div>
+        `;
+    });
+}
+
+function toggleVideoInPlaylist(pName) {
+    const list = favData[pName];
+    const idx = list.findIndex(v => v.id === videoPendingModal.id);
+    if (idx > -1) list.splice(idx, 1);
+    else list.push(videoPendingModal);
+    saveFavorites();
+    renderModalPlaylists();
+}
+
+function createNewPlaylist() {
+    const input = document.getElementById('new-playlist-name');
+    const name = input.value.trim();
+    if (name && !favData[name]) {
+        favData[name] = [];
+        favData[name].push(videoPendingModal);
+        saveFavorites();
+        input.value = '';
+        renderModalPlaylists();
+    }
 }
 
 function updatePlayerHeart() {
@@ -232,19 +323,6 @@ function updatePlayerHeart() {
     const isFav = checkIsFav(globalQueue[currentQueueIndex].id);
     document.getElementById('playerFavBtn').classList.toggle('loved', isFav);
     document.getElementById('playerFavBtn').querySelector('i').className = isFav ? 'fas fa-heart' : 'far fa-heart';
-}
-
-function togglePlayerFavorite() {
-    if(currentQueueIndex === -1) return;
-    const video = globalQueue[currentQueueIndex];
-    if(checkIsFav(video.id)) favoritesList = favoritesList.filter(f => f.id !== video.id); else favoritesList.push(video);
-    saveFavorites();
-    if(isFavViewActive) {
-        if(favoritesList.length===0) resultsDiv.innerHTML = `<div id="empty-state"><i class="far fa-heart"></i><h3>${i18n[lang].favTitle}</h3><p>${i18n[lang].favDesc}</p></div>`;
-        else renderCards(favoritesList);
-    }
-    updatePlayerHeart(); highlightCard();
-    if(!isFavViewActive) renderCards(searchVideos);
 }
 
 function highlightCard() {
@@ -271,11 +349,9 @@ audio.onended = () => { if(!audio.loop) playNext(); };
 
 function downloadCurrent() {
     if(currentQueueIndex === -1) return;
-    
     const utf8Encoder = new TextEncoder();
     const bytes = utf8Encoder.encode(globalQueue[currentQueueIndex].title);
     const hexTitle = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-    
     window.location.href = `/download?id=${globalQueue[currentQueueIndex].id}&t=${hexTitle}`;
 }
 

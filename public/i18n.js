@@ -13,8 +13,9 @@ const i18n = {
         ttLang: "Dili Değiştir (İngilizce)", ttView: "Görünümü Değiştir", ttFavs: "Favorilerim", ttTheme: "Tema Değiştir",
         ttClear: "Temizle", ttSearch: "Ara", ttOrderUp: "Yukarı Taşı", ttOrderDown: "Aşağı Taşı",
         ttPrev: "Önceki Şarkı", ttPlay: "Oynat / Duraklat", ttNext: "Sonraki Şarkı",
-        ttLoop: "Sürekli Tekrar", ttDownload: "M4A Olarak İndir", ttFavToggle: "Favorilere Ekle / Çıkar",
-        ttVolume: "Ses Seviyesi"
+        ttLoop: "Sürekli Tekrar", ttDownload: "M4A Olarak İndir", ttFavToggle: "Listelere Ekle / Çıkar",
+        ttVolume: "Ses Seviyesi",
+        modalTitle: "Listeye Ekle", newPlaylist: "Yeni liste adı..."
     },
     en: {
         pageTitle: "NodeTube | Free Music", search: "Search songs, artists...", loadMore: "LOAD MORE",
@@ -23,10 +24,11 @@ const i18n = {
         prepTitle: "Connecting", prepDesc: "Optimizing NodeTube...",
         wait: "Waiting for music...", prep: "Preparing", play: "Playing",
         searching: "Searching...", error: "Search error.",
-        ttLang: "Change Language (Turkish)", ttView: "Toggle View", ttFavs: "My Favorites", ttTheme: "Toggle Theme",
+        ttLang: "Change Language (Turkish)", ttView: "Toggle View", ttFavs: "My Playlists", ttTheme: "Toggle Theme",
         ttClear: "Clear", ttSearch: "Search", ttOrderUp: "Move Up", ttOrderDown: "Move Down",
         ttPrev: "Previous Track", ttPlay: "Play / Pause", ttNext: "Next Track",
-        ttLoop: "Toggle Loop", ttDownload: "Download as M4A", ttFavToggle: "Toggle Favorite",
-        ttVolume: "Volume"
+        ttLoop: "Toggle Loop", ttDownload: "Download as M4A", ttFavToggle: "Add to / Remove from Playlists",
+        ttVolume: "Volume",
+        modalTitle: "Add to Playlist", newPlaylist: "New playlist name..."
     }
 };
