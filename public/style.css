@@ -238,7 +238,7 @@ button.main-btn:hover { opacity: 0.9; }
 #empty-state i { font-size: 45px; margin-bottom: 15px; opacity: 0.4; }
 
 #player-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--player-bg); padding: 15px 20px; border-top: 1px solid var(--border); backdrop-filter: blur(20px); z-index: 50; }
-#now-playing { text-align:center; margin-bottom:8px; color:var(--primary); font-weight:600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 800px; margin: 0 auto 8px auto; cursor: pointer; transition: 0.2s; }
+#now-playing { text-align:center; margin-bottom:15px; color:var(--primary); font-weight:600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 800px; margin: 0 auto 15px auto; cursor: pointer; transition: 0.2s; }
 #now-playing:hover { opacity: 0.8; text-decoration: underline; }
 
 .player-controls { display: flex; align-items: center; justify-content: space-between; max-width: 1300px; margin: 0 auto; width: 100%; gap: 15px; }
@@ -311,8 +311,8 @@ input[type="range"] { flex: 1; cursor: pointer; accent-color: var(--primary); he
     .player-controls { flex-direction: column; gap: 10px; justify-content: center; }
     .progress-row { order: 1; flex: 1 1 100%; width: 100%; padding: 0; margin-bottom: 5px; min-width: unset; }
     .mobile-buttons { display: flex; order: 2; justify-content: center; width: 100%; gap: 10px; align-items: center; flex-wrap: nowrap; }
-    .play-btns { width: auto; gap: 10px; padding: 0; justify-content: center; order: unset; }
-    .action-btns { width: auto; gap: 10px; padding: 0; justify-content: center; order: unset; }
+    .play-btns { width: auto; gap: 3px; padding: 0; justify-content: center; order: unset; }
+    .action-btns { width: auto; gap: 3px; padding: 0; justify-content: center; order: unset; }
     .mobile-separator { display: block; width: 2px; height: 24px; background: var(--border); border-radius: 2px; margin: 0; opacity: 0.5; flex-shrink: 0; order: unset; }
     .icon-btn { width: 38px; height: 38px; min-width: 38px; min-height: 38px; font-size: 15px; }
     #playBtn { width: 46px; height: 46px; min-width: 46px; min-height: 46px; font-size: 16px; }
