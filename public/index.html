@@ -94,6 +94,7 @@
                 </div>
                 <button class="header-btn" id="ambientToggleBtn" onclick="toggleAmbientMode()"><i class="fas fa-magic"></i></button>
                 <button class="header-btn" id="zenToggleBtn" onclick="toggleZenMode()"><i class="fas fa-spa"></i></button>
+                <button class="header-btn" id="lyricsToggleBtn" onclick="toggleLyricsModal()"><i class="fas fa-file-alt"></i></button>
                 <button class="header-btn" id="viewToggleBtn" onclick="toggleViewMode()"><i class="fas fa-th"></i></button>
                 <button class="header-btn" id="favViewBtn" onclick="toggleFavoritesView()"><i class="fas fa-heart"></i></button>
                 <button class="header-btn" id="themeToggleBtn" onclick="toggleTheme()"><i class="fas fa-sun"></i></button>
@@ -178,6 +179,18 @@
             </div>
         </div>
         <audio id="mainAudio" preload="metadata" crossorigin="anonymous"></audio>
+    </div>
+
+    <div id="lyrics-modal" class="modal-overlay" onclick="closeLyricsModal(event)">
+        <div class="modal-content lyrics-content">
+            <div class="modal-header">
+                <h3 id="lyrics-title"></h3>
+                <button class="close-btn" onclick="toggleLyricsModal()">&times;</button>
+            </div>
+            <div id="lyrics-body" class="lyrics-scroll">
+                <p id="lyrics-text"></p>
+            </div>
+        </div>
     </div>
 
     <script src="/i18n.js"></script>

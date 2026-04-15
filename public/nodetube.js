@@ -117,6 +117,7 @@ function applyLanguage() {
     document.getElementById('viewToggleBtn').title = i18n[lang].ttView;
     document.getElementById('zenToggleBtn').title = i18n[lang].ttZenMode;
     document.getElementById('ambientToggleBtn').title = i18n[lang].ttAmbientMode;
+    document.getElementById('lyricsToggleBtn').title = i18n[lang].ttLyrics;
     document.getElementById('favViewBtn').title = i18n[lang].ttFavs;
     document.getElementById('themeToggleBtn').title = i18n[lang].ttTheme;
     document.getElementById('clearInputBtn').title = i18n[lang].ttClear;
@@ -1080,6 +1081,74 @@ function setAmbientColor(imgUrl) {
     img.onerror = () => {
         document.documentElement.style.setProperty('--ambient-color', 'var(--surface-hover)');
     };
+}
+
+function cleanTitle(title) {
+    return title
+        .replace(/\(([^)]+)\)/g, '') 
+        .replace(/\[([^\]]+)\]/g, '') 
+        .replace(/official\s+video|official\s+audio|vevo|lyric\s+video|video\s+clip|full\s+hd|4k/gi, '') 
+        .replace(/ft\.|feat\./gi, '') 
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+async function fetchLyrics() {
+    const video = globalQueue[currentQueueIndex];
+    if (!video) return;
+
+    const cleanedTrack = cleanTitle(video.title);
+    const cleanedArtist = video.author.replace(/VEVO|Official|Topic/gi, '').trim();
+    const query = `${cleanedArtist} ${cleanedTrack}`;
+    const lyricsBody = document.getElementById('lyrics-text');
+    const lyricsTitle = document.getElementById('lyrics-title');
+    
+    lyricsTitle.innerText = `${video.author} - ${video.title}`;
+    lyricsBody.innerHTML = `<div style="opacity:0.6"><i class="fas fa-spinner fa-spin"></i> ${i18n[lang].lyricsLoading}</div>`;
+
+    try {
+        const response = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            lyricsBody.innerText = data[0].plainLyrics || i18n[lang].lyricsNotFound;
+        } else {
+            const retryResponse = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(cleanedTrack)}`);
+            const retryData = await retryResponse.json();
+            
+            if (retryData && retryData.length > 0) {
+                lyricsBody.innerText = retryData[0].plainLyrics || i18n[lang].lyricsNotFound;
+            } else {
+                lyricsBody.innerText = i18n[lang].lyricsNotFound;
+            }
+        }
+    } catch (error) {
+        lyricsBody.innerText = i18n[lang].lyricsError;
+    }
+}
+
+function toggleLyricsModal() {
+    const modal = document.getElementById('lyrics-modal');
+    if (!modal) return;
+
+    if (!modal.classList.contains('active') && currentQueueIndex === -1) {
+        return; 
+    }
+
+    modal.classList.toggle('active');
+
+    if (modal.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+        fetchLyrics();
+    } else {
+        document.body.style.overflow = '';
+    }
+}
+
+function closeLyricsModal(e) {
+    if (e.target.id === 'lyrics-modal') {
+        toggleLyricsModal();
+    }
 }
 
 document.addEventListener('click', (e) => {
