@@ -79,7 +79,16 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button class="header-btn" id="langToggleBtn" onclick="toggleLang()"></button>
+                <div class="dropdown-container" id="langDropdownContainer">
+                    <button class="header-btn" id="langToggleBtn" onclick="toggleLangMenu()"></button>
+                    <div class="dropdown-menu" id="langDropdownMenu">
+                        <button class="dropdown-item" onclick="setLang('tr')">Türkçe (TR)</button>
+                        <button class="dropdown-item" onclick="setLang('en')">English (EN)</button>
+                        <button class="dropdown-item" onclick="setLang('es')">Español (ES)</button>
+                        <button class="dropdown-item" onclick="setLang('de')">Deutsch (DE)</button>
+                        <button class="dropdown-item" onclick="setLang('fr')">Français (FR)</button>
+                    </div>
+                </div>
                 <button class="header-btn" id="viewToggleBtn" onclick="toggleViewMode()"><i class="fas fa-th"></i></button>
                 <button class="header-btn" id="favViewBtn" onclick="toggleFavoritesView()"><i class="fas fa-heart"></i></button>
                 <button class="header-btn" id="themeToggleBtn" onclick="toggleTheme()"><i class="fas fa-sun"></i></button>

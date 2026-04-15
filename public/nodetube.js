@@ -71,7 +71,7 @@ function scrollToTop() {
 }
 
 function applyLanguage() {
-    document.getElementById('langToggleBtn').innerText = lang === 'tr' ? 'EN' : 'TR';
+    document.getElementById('langToggleBtn').innerText = lang.toUpperCase();
     document.getElementById('searchInput').placeholder = i18n[lang].search;
     document.getElementById('ui-load').innerText = i18n[lang].loadMore;
     document.getElementById('ui-modal-title').innerText = i18n[lang].modalTitle;
@@ -101,7 +101,7 @@ function applyLanguage() {
     document.getElementById('shuffleBtn').title = i18n[lang].ttShuffle;
     
     const lsInput = document.getElementById('listSearchInput');
-    if(lsInput) lsInput.placeholder = i18n[lang].listSearchPlaceholder || (lang === 'tr' ? 'Liste içinde bul...' : 'Find in playlist...');
+    if(lsInput) lsInput.placeholder = i18n[lang].listSearchPlaceholder;
     
     document.querySelectorAll('.card-fav-btn').forEach(btn => btn.title = i18n[lang].ttFavToggle);
     document.querySelectorAll('.fav-up').forEach(btn => btn.title = i18n[lang].ttOrderUp);
@@ -118,7 +118,15 @@ function applyLanguage() {
     if(isFavViewActive) renderFavoritesView();
 }
 
-function toggleLang() { lang = lang === 'tr' ? 'en' : 'tr'; localStorage.setItem('nodeTubeLang', lang); applyLanguage(); }
+function toggleLangMenu() {
+    document.getElementById('langDropdownMenu').classList.toggle('active');
+}
+function setLang(newLang) {
+    lang = newLang;
+    localStorage.setItem('nodeTubeLang', lang);
+    applyLanguage();
+    document.getElementById('langDropdownMenu').classList.remove('active');
+}
 
 function updateEmptyState() {
     const container = document.getElementById('results');
@@ -972,6 +980,14 @@ document.addEventListener('click', (e) => {
         const input = document.getElementById('listSearchInput');
         if (!searchWrapper.contains(e.target) && input.value.trim() === '') {
             searchWrapper.classList.remove('expanded');
+        }
+    }
+
+    const langDropdown = document.getElementById('langDropdownMenu');
+    const langBtn = document.getElementById('langToggleBtn');
+    if (langDropdown && langDropdown.classList.contains('active')) {
+        if (e.target !== langBtn && !langDropdown.contains(e.target)) {
+            langDropdown.classList.remove('active');
         }
     }
 });

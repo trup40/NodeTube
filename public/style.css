@@ -44,6 +44,13 @@ body { font-family: 'Exo 2', system-ui, sans-serif; background: linear-gradient(
 .toast.show { right: 20px; }
 .toast i { font-size: 20px; }
 .toast i.fa-spin { color: var(--primary); }
+
+.dropdown-container { position: relative; display: flex; align-items: center; }
+.dropdown-menu { position: absolute; top: 120%; right: 0; background: var(--popup-bg); border: 1px solid var(--border); border-radius: 12px; padding: 8px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.3); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: 0.2s; z-index: 100; min-width: 150px; }
+.dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+.dropdown-item { display: block; width: 100%; text-align: left; background: none; border: none; padding: 10px 20px; color: var(--text-main); font-family: 'Exo 2', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.dropdown-item:hover { background: var(--surface-hover); color: var(--primary); }
+
 @media (max-width: 600px) { .toast { top: 20px; right: -100%; width: 90%; max-width: 400px; } .toast.show { right: 5%; } }
 
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 999; }
