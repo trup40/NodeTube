@@ -11,11 +11,11 @@
 }
 
 [data-theme="light"] {
-    --bg-color: #f1f5f9; --surface: #ffffff; --surface-hover: #e2e8f0;
-    --primary: #10b981; --primary-hover: #059669; --text-main: #0f172a;
-    --text-muted: #64748b; --border: #cbd5e1; --heart: #dc2626;
-    --header-bg: rgba(241, 245, 249, 0.85); --player-bg: rgba(255, 255, 255, 0.95);
-    --popup-bg: rgba(255, 255, 255, 0.98); --input-bg: rgba(255, 255, 255, 0.8);
+    --bg-color: #f4f4f9; --surface: #ffffff; --surface-hover: #eaeef3;
+    --primary: #10b981; --primary-hover: #059669; --text-main: #1e293b;
+    --text-muted: #64748b; --border: #d1d5db; --heart: #ef4444;
+    --header-bg: rgba(244, 244, 249, 0.85); --player-bg: rgba(255, 255, 255, 0.95);
+    --popup-bg: rgba(255, 255, 255, 0.98); --input-bg: rgba(255, 255, 255, 0.9);
     --icon-color: #475569;
 }
 
@@ -31,12 +31,10 @@ body { font-family: 'Exo 2', system-ui, sans-serif; background: linear-gradient(
 ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; border: 2px solid var(--bg-color); }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
-/* TOAST CSS EKLENDİ VE ESKİ PREPARING-POPUP SİLİNDİ */
-.toast { position: fixed; top: 100px; right: -400px; background: var(--surface); border-left: 4px solid var(--primary); color: var(--text-main); padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 15px; z-index: 1000; transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; font-size: 15px; }
+.toast { position: fixed; top: 100px; right: -400px; background: var(--surface); border-left: 4px solid var(--primary); color: var(--text-main); padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 15px; z-index: 1000; transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; font-size: 15px; border: 1px solid var(--border); border-left: 4px solid var(--primary); }
 .toast.show { right: 20px; }
 .toast i { font-size: 20px; }
 .toast i.fa-spin { color: var(--primary); }
-@keyframes spin { 100% { transform: rotate(360deg); } }
 @media (max-width: 600px) { .toast { top: 20px; right: -100%; width: 90%; max-width: 400px; } .toast.show { right: 5%; } }
 
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 999; }
@@ -106,21 +104,28 @@ button.main-btn { flex-shrink: 0; padding: 12px 25px; border-radius: 12px; borde
 .playlist-actions button:hover { color: var(--primary); }
 .playlist-actions button.delete-btn:hover { color: var(--heart); }
 
-#results { display: grid; gap: 20px; max-width: 1300px; margin: 20px auto 25px auto; padding: 0 20px; transition: 0.3s; }
+#results { display: grid; gap: 20px; max-width: 1300px; margin: 20px auto 25px auto; padding: 0 20px; transition: 0.3s; contain: content; }
+
+.img-wrapper { position: relative; display: flex; flex-shrink: 0; border-radius: 8px; overflow: hidden; }
+.img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+/* HOVER PLAY İKONU */
+.play-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; opacity: 0; transition: 0.2s; z-index: 4; }
+.card:hover .play-overlay { opacity: 1; }
+.card.playing:hover .play-overlay { opacity: 0; } /* Çalan şarkıda EQ görünsün diye hover gizlenir */
 
 #results.grid-view { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 #results.grid-view .card { flex-direction: column; }
-#results.grid-view .card img { width: 100%; aspect-ratio: 16/9; margin-bottom: 12px; }
+#results.grid-view .img-wrapper { width: 100%; aspect-ratio: 16/9; margin-bottom: 12px; }
 
 #results.list-view { grid-template-columns: 1fr; }
 #results.list-view .card { flex-direction: row; align-items: center; gap: 20px; padding: 10px 20px; }
-#results.list-view .card img { width: 120px; height: 68px; margin-bottom: 0; flex-shrink: 0; }
+#results.list-view .img-wrapper { width: 120px; height: 68px; margin-bottom: 0; flex-shrink: 0; }
 #results.list-view .card h4 { -webkit-line-clamp: 1; margin-bottom: 4px; font-size: 16px; }
 
-.card { background: var(--surface); border-radius: 12px; padding: 12px; cursor: pointer; transition: 0.2s; border: 1px solid var(--border); display: flex; position: relative; }
+.card { background: var(--surface); border-radius: 12px; padding: 12px; cursor: pointer; transition: 0.2s; border: 1px solid var(--border); display: flex; position: relative; will-change: transform, border-color, box-shadow; transform: translateZ(0); backface-visibility: hidden; }
 .card.playing { border-color: var(--primary); background: var(--surface-hover); box-shadow: 0 0 10px rgba(16,185,129,0.2); }
 .card:hover { transform: translateY(-3px); border-color: var(--primary); }
-.card img { border-radius: 8px; object-fit: cover; }
 .card .info { flex: 1; min-width: 0; }
 .card h4 { font-size: 15px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-main); }
 .card p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
@@ -143,10 +148,15 @@ button.main-btn { flex-shrink: 0; padding: 12px 25px; border-radius: 12px; borde
 
 #results.list-view .fav-order-badge { position: static; flex-direction: column; margin-right: 5px; flex-shrink: 0; background: transparent; border: none; backdrop-filter: none; }
 
+/* GERÇEKÇİ VISUALIZER CSS */
+.visualizer-container { position: absolute; bottom: 8px; right: 8px; display: none; background: rgba(0,0,0,0.7); padding: 4px 5px; border-radius: 4px; align-items: flex-end; gap: 3px; height: 18px; z-index: 5; }
+.card.playing .visualizer-container { display: flex; }
+.visualizer-container span { width: 3px; background: var(--primary); border-radius: 2px; height: 3px; transition: height 0.05s ease-out; }
+
 @media (max-width: 600px) {
     #results { padding: 0 10px; margin-top: 15px; }
     #results.list-view .card { padding: 12px 10px; gap: 10px; min-height: 85px; }
-    #results.list-view .card img { width: 100px; height: 56px; min-width: 100px; }
+    #results.list-view .img-wrapper { width: 100px; height: 56px; min-width: 100px; }
     #results.list-view .card h4 { font-size: 14px; margin-bottom: 5px; }
     #results.list-view .card p { font-size: 12px; }
     #results.list-view .card-fav-btn { width: 32px; height: 32px; min-width: 32px; font-size: 18px; margin-left: auto; margin-right: 0; padding: 0; }

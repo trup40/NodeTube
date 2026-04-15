@@ -21,7 +21,6 @@ let resolvedTitle = '';
 
 let lang = localStorage.getItem('nodeTubeLang') || 'tr';
 
-// TOAST BİLDİRİM FONKSİYONLARI EKLENDİ (10 SANİYE ZAMAN AŞIMI DAHİL)
 let toastTimeout;
 function showToast(msg, isLoading = false) {
     const toast = document.getElementById('toast-notification');
@@ -71,7 +70,6 @@ function scrollToTop() {
 function applyLanguage() {
     document.getElementById('langToggleBtn').innerText = lang === 'tr' ? 'EN' : 'TR';
     document.getElementById('searchInput').placeholder = i18n[lang].search;
-    // ESKİ POPUP BAŞLIK VE AÇIKLAMA METİNLERİ SİLİNDİ
     document.getElementById('ui-load').innerText = i18n[lang].loadMore;
     document.getElementById('ui-modal-title').innerText = i18n[lang].modalTitle;
     document.getElementById('new-playlist-name').placeholder = i18n[lang].newPlaylist;
@@ -134,6 +132,59 @@ let isShuffle = false;
 const audio = document.getElementById('mainAudio');
 const resultsDiv = document.getElementById('results');
 const viewBtnIcon = document.getElementById('viewToggleBtn').querySelector('i');
+
+// WEB AUDIO API DEĞİŞKENLERİ
+let audioCtx;
+let analyser;
+let dataArray;
+let sourceNode;
+
+function initAudioAnalyzer() {
+    if (audioCtx) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return;
+    }
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 64; 
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    sourceNode = audioCtx.createMediaElementSource(audio);
+    sourceNode.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    
+    drawVisualizer();
+}
+
+function drawVisualizer() {
+    requestAnimationFrame(drawVisualizer);
+    
+    if (!audioCtx || audio.paused || currentQueueIndex === -1) {
+        const activeCard = document.getElementById(`card-${globalQueue[currentQueueIndex]?.id}`);
+        if (activeCard) {
+            const spans = activeCard.querySelectorAll('.visualizer-container span');
+            if (spans.length === 3) {
+                spans[0].style.height = '3px';
+                spans[1].style.height = '3px';
+                spans[2].style.height = '3px';
+            }
+        }
+        return;
+    }
+
+    analyser.getByteFrequencyData(dataArray);
+
+    const activeCard = document.getElementById(`card-${globalQueue[currentQueueIndex].id}`);
+    if (activeCard) {
+        const spans = activeCard.querySelectorAll('.visualizer-container span');
+        if (spans.length === 3) {
+            spans[0].style.height = Math.max(3, (dataArray[2] / 255) * 16) + 'px';
+            spans[1].style.height = Math.max(3, (dataArray[8] / 255) * 16) + 'px';
+            spans[2].style.height = Math.max(3, (dataArray[16] / 255) * 16) + 'px';
+        }
+    }
+}
 
 window.onload = () => {
     if(viewMode === 'list') { resultsDiv.classList.replace('grid-view', 'list-view'); viewBtnIcon.className = 'fas fa-list'; }
@@ -428,7 +479,7 @@ async function startNewSearch() {
     const isPlaylist = isUrl && q.includes('list=');
 
     if (isUrl) {
-        resultsDiv.innerHTML = `<p style="text-align:center; padding-top:50px;"><i class="fas fa-spinner fa-spin"></i> ${i18n[lang].searching}</p>`;
+        showToast(`${i18n[lang].searching}`, true);
         try {
             const utf8Encoder = new TextEncoder();
             const bytes = utf8Encoder.encode(q);
@@ -437,6 +488,7 @@ async function startNewSearch() {
             const res = await fetch(`/resolve?url=${hexUrl}`);
             const data = await res.json();
             
+            hideToast();
             if (isPlaylist && data.videos.length > 1) {
                 resultsDiv.innerHTML = `<div id="empty-state"><i class="fas fa-list"></i><h3>${data.title || 'Playlist'}</h3><p>${data.videos.length} video</p></div>`;
                 openResolveModal(data.title, data.videos);
@@ -445,16 +497,18 @@ async function startNewSearch() {
                 renderCards(searchVideos);
                 playWithContext(0, 'search');
             } else {
-                resultsDiv.innerHTML = `<p style="text-align:center; color:var(--heart);">${i18n[lang].error}</p>`;
+                showToast(i18n[lang].error, false);
             }
         } catch(e) {
-            resultsDiv.innerHTML = `<p style="text-align:center; color:var(--heart);">${i18n[lang].error}</p>`;
+            hideToast();
+            showToast(i18n[lang].error, false);
         }
         return;
     }
 
     currentQuery = q; currentPage = 1; searchVideos = [];
-    resultsDiv.innerHTML = `<p style="text-align:center; padding-top:50px;"><i class="fas fa-spinner fa-spin"></i> ${i18n[lang].searching}</p>`;
+    resultsDiv.innerHTML = ``;
+    showToast(`${i18n[lang].searching}`, true);
     await fetchPage(true);
 }
 
@@ -464,13 +518,17 @@ async function fetchPage(isNew = false) {
     try {
         const res = await fetch(`/search?q=${encodeURIComponent(currentQuery)}&page=${currentPage}`);
         const data = await res.json();
+        hideToast();
         if(isNew) searchVideos = []; data.videos.forEach(v => searchVideos.push(v)); searchHasMore = data.hasMore;
         if(!isFavViewActive) {
             renderCards(searchVideos);
             loadBtn.style.display = searchHasMore ? 'inline-block' : 'none';
             document.getElementById('ui-load').innerText = i18n[lang].loadMore;
         }
-    } catch (e) { if(!isFavViewActive) resultsDiv.innerHTML = `<p style="text-align:center; color:var(--heart);">${i18n[lang].error}</p>`; }
+    } catch (e) { 
+        hideToast();
+        if(!isFavViewActive) showToast(i18n[lang].error, false); 
+    }
 }
 
 function moveFav(index, direction, event) {
@@ -515,7 +573,11 @@ function renderCards(list) {
             <button class="card-fav-btn ${isFav ? 'loved' : ''}" onclick="toggleFav(event, ${idx}, '${context}')" title="${i18n[lang].ttFavToggle}">
                 <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
             </button>
-            <img src="${v.thumbnail}" loading="lazy">
+            <div class="img-wrapper">
+                <div class="play-overlay"><i class="fas fa-play"></i></div>
+                <img src="${v.thumbnail}" loading="lazy">
+                <div class="visualizer-container"><span></span><span></span><span></span></div>
+            </div>
             <div class="info">
                 <h4>${v.title}</h4>
                 <p>${v.author} • ${v.duration}</p>
@@ -526,9 +588,24 @@ function renderCards(list) {
     highlightCard();
 }
 
-function playWithContext(index, context) { globalQueue = (context === 'fav') ? [...favData[activePlaylist]] : [...searchVideos]; startStream(index); }
+// SORUNUN ÇÖZÜLDÜĞÜ YER
+function playWithContext(index, context) { 
+    const newList = (context === 'fav') ? [...favData[activePlaylist]] : [...searchVideos]; 
+    
+    // Eğer o an çalan kuyrukta geçerli bir şarkı varsa ve yeni tıklananla AYNIYSA, sadece duraklat
+    if (currentQueueIndex !== -1 && globalQueue.length > currentQueueIndex) {
+        const currentVideo = globalQueue[currentQueueIndex];
+        if (currentVideo && currentVideo.id === newList[index].id) {
+            togglePlay();
+            return;
+        }
+    }
 
-// TOAST BİLDİRİMİ İÇİN GÜNCELLENEN KISIM
+    // Farklı bir şarkıysa kuyruğu güncelle ve başlat
+    globalQueue = newList;
+    startStream(index); 
+}
+
 function startStream(index) {
     if(index < 0 || index >= globalQueue.length) return;
     currentQueueIndex = index; const video = globalQueue[index];
@@ -544,9 +621,15 @@ function startStream(index) {
         navigator.mediaSession.setActionHandler('previoustrack', playPrevious); navigator.mediaSession.setActionHandler('nexttrack', playNext);
     }
 
-    audio.src = `/stream?id=${video.id}`; audio.play().catch(() => {});
+    audio.src = `/stream?id=${video.id}`; 
+    initAudioAnalyzer();
+    
+    audio.play().catch(() => {});
     audio.onplaying = () => {
         hideToast();
+        const active = document.querySelector('.card.playing');
+        if(active) active.classList.remove('paused');
+        
         document.getElementById('now-playing').innerText = `${i18n[lang].play} (${currentQueueIndex + 1}/${globalQueue.length}): ${video.title}`;
         document.getElementById('playBtn').querySelector('i').className = 'fas fa-pause';
         highlightCard(); updatePlayerHeart();
@@ -557,7 +640,10 @@ function startStream(index) {
 function scrollToCurrentCard() {
     if(currentQueueIndex === -1) return;
     const card = document.getElementById(`card-${globalQueue[currentQueueIndex].id}`);
-    if(card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if(card) {
+        const offset = window.innerHeight / 2 - card.offsetHeight / 2;
+        window.scrollTo({ top: card.offsetTop - offset, behavior: 'smooth' });
+    }
 }
 
 function toggleShuffle() {
