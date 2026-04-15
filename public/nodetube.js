@@ -246,13 +246,28 @@ audio.onplay = () => {
 };
 
 window.onload = () => {
-    if(viewMode === 'list') { resultsDiv.classList.replace('grid-view', 'list-view'); viewBtnIcon.className = 'fas fa-list'; }
+    if(viewMode === 'list') { resultsDiv.className = 'list-view'; viewBtnIcon.className = 'fas fa-list'; }
+    else if(viewMode === 'compact') { resultsDiv.className = 'compact-view'; viewBtnIcon.className = 'fas fa-bars'; }
+    else { resultsDiv.className = 'grid-view'; viewBtnIcon.className = 'fas fa-th'; }
     applyLanguage();
 };
 
 function toggleViewMode() {
-    if (viewMode === 'grid') { viewMode = 'list'; resultsDiv.classList.replace('grid-view', 'list-view'); viewBtnIcon.className = 'fas fa-list'; } 
-    else { viewMode = 'grid'; resultsDiv.classList.replace('list-view', 'grid-view'); viewBtnIcon.className = 'fas fa-th'; }
+    if (viewMode === 'grid') { 
+        viewMode = 'list'; 
+        resultsDiv.className = 'list-view'; 
+        viewBtnIcon.className = 'fas fa-list'; 
+    } 
+    else if (viewMode === 'list') { 
+        viewMode = 'compact'; 
+        resultsDiv.className = 'compact-view'; 
+        viewBtnIcon.className = 'fas fa-bars'; 
+    } 
+    else { 
+        viewMode = 'grid'; 
+        resultsDiv.className = 'grid-view'; 
+        viewBtnIcon.className = 'fas fa-th'; 
+    }
     localStorage.setItem('nodeTubeView', viewMode);
 }
 
