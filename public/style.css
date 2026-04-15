@@ -380,6 +380,10 @@ header {
 }
 .vinyl-hole { position: absolute; width: 20px; height: 20px; background: var(--bg-color); border-radius: 50%; border: 3px solid #111; z-index: 2; transition: background 1s ease-in-out; }
 
+img[src="/favicon.svg"] + .vinyl-hole {
+    display: none;
+}
+
 @keyframes spinRecord { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 @media (max-width: 600px) {
