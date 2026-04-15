@@ -92,6 +92,7 @@
                         <button class="dropdown-item" onclick="setLang('ru')">Русский (RU)</button>
                     </div>
                 </div>
+                <button class="header-btn" id="zenToggleBtn" onclick="toggleZenMode()" title="Zen Modu"><i class="fas fa-spa"></i></button>
                 <button class="header-btn" id="viewToggleBtn" onclick="toggleViewMode()"><i class="fas fa-th"></i></button>
                 <button class="header-btn" id="favViewBtn" onclick="toggleFavoritesView()"><i class="fas fa-heart"></i></button>
                 <button class="header-btn" id="themeToggleBtn" onclick="toggleTheme()"><i class="fas fa-sun"></i></button>
@@ -140,6 +141,12 @@
 
     <button id="scrollToTopBtn" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
 
+    <div id="zen-container">
+        <div class="vinyl-record">
+            <img id="zen-cover" src="https://via.placeholder.com/300?text=M%C3%BCzik+Se%C3%A7" alt="Zen Cover">
+            <div class="vinyl-hole"></div>
+        </div>
+    </div>
     <div id="player-wrapper">
         <div id="now-playing" onclick="scrollToCurrentCard()" title="Listede Bul"></div>
         <div class="player-controls">

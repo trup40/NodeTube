@@ -24,6 +24,19 @@ let lang = localStorage.getItem('nodeTubeLang') || 'tr';
 let listSearchMatches = [];
 let listSearchCurrentIndex = -1;
 
+let isZenMode = false;
+function toggleZenMode() {
+    isZenMode = !isZenMode;
+    if (isZenMode) {
+        document.body.classList.add('zen-active');
+        document.getElementById('zenToggleBtn').style.color = 'var(--primary)';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        document.body.classList.remove('zen-active');
+        document.getElementById('zenToggleBtn').style.color = '';
+    }
+}
+
 let toastTimeout;
 function showToast(msg, isLoading = false) {
     const toast = document.getElementById('toast-notification');
@@ -816,6 +829,8 @@ function startStream(index) {
 
     audio.src = `/stream?id=${video.id}`; 
     setAmbientColor(video.thumbnail);
+    const zenCover = document.getElementById('zen-cover');
+    if(zenCover) zenCover.src = video.thumbnail;
     initAudioAnalyzer();
     
     audio.play().catch(() => {});
