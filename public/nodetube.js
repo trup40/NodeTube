@@ -21,6 +21,9 @@ let resolvedTitle = '';
 
 let lang = localStorage.getItem('nodeTubeLang') || 'tr';
 
+let listSearchMatches = [];
+let listSearchCurrentIndex = -1;
+
 let toastTimeout;
 function showToast(msg, isLoading = false) {
     const toast = document.getElementById('toast-notification');
@@ -97,6 +100,9 @@ function applyLanguage() {
     document.getElementById('volumeBtn').title = i18n[lang].ttVolume;
     document.getElementById('shuffleBtn').title = i18n[lang].ttShuffle;
     
+    const lsInput = document.getElementById('listSearchInput');
+    if(lsInput) lsInput.placeholder = i18n[lang].listSearchPlaceholder || (lang === 'tr' ? 'Liste içinde bul...' : 'Find in playlist...');
+    
     document.querySelectorAll('.card-fav-btn').forEach(btn => btn.title = i18n[lang].ttFavToggle);
     document.querySelectorAll('.fav-up').forEach(btn => btn.title = i18n[lang].ttOrderUp);
     document.querySelectorAll('.fav-down').forEach(btn => btn.title = i18n[lang].ttOrderDown);
@@ -133,7 +139,6 @@ const audio = document.getElementById('mainAudio');
 const resultsDiv = document.getElementById('results');
 const viewBtnIcon = document.getElementById('viewToggleBtn').querySelector('i');
 
-// WEB AUDIO API DEĞİŞKENLERİ
 let audioCtx;
 let analyser;
 let dataArray;
@@ -201,6 +206,7 @@ function toggleClearBtn() { document.getElementById('clearInputBtn').style.displ
 function clearSearch() {
     document.getElementById('searchInput').value = ''; toggleClearBtn();
     searchVideos = []; searchHasMore = false;
+    clearListSearch();
     if(!isFavViewActive) resetApp(); else document.getElementById('loadMoreBtn').style.display = 'none';
 }
 
@@ -208,6 +214,7 @@ function resetApp() {
     searchVideos = [];
     document.getElementById('playlist-header').style.display = 'none';
     document.getElementById('playlist-actions').style.display = 'none';
+    document.getElementById('list-search-container').style.display = 'none';
     resultsDiv.innerHTML = `<div id="empty-state"><i class="fas fa-headphones"></i><h3 id="ui-empty-title">${i18n[lang].emptyTitle}</h3><p id="ui-empty-desc">${i18n[lang].emptyDesc}</p></div>`;
     document.getElementById('loadMoreBtn').style.display = 'none'; document.title = i18n[lang].pageTitle;
 }
@@ -294,10 +301,13 @@ function renderFavoritesView() {
 
     const list = favData[activePlaylist] || [];
     if (list.length === 0) {
+        document.getElementById('list-search-container').style.display = 'none';
         resultsDiv.innerHTML = `<div id="empty-state"><i class="far fa-heart"></i><h3>${i18n[lang].favTitle}</h3><p>${i18n[lang].favDesc}</p></div>`;
     } else {
+        document.getElementById('list-search-container').style.display = 'block';
         renderCards(list);
     }
+    clearListSearch();
 }
 
 function moveActivePlaylist(direction) {
@@ -394,7 +404,12 @@ function toggleFavoritesView() {
         favBtn.classList.remove('active-fav');
         header.style.display = 'none';
         actionsContainer.style.display = 'none';
-        if(searchVideos.length > 0) { renderCards(searchVideos); loadBtn.style.display = searchHasMore ? 'inline-block' : 'none'; } 
+        if(searchVideos.length > 0) { 
+            document.getElementById('list-search-container').style.display = 'block';
+            renderCards(searchVideos); 
+            loadBtn.style.display = searchHasMore ? 'inline-block' : 'none'; 
+            clearListSearch();
+        } 
         else resetApp();
     }
 }
@@ -434,7 +449,9 @@ function closeResolveModal() {
 
 function playResolvedAll() {
     searchVideos = [...resolvedVideos];
+    document.getElementById('list-search-container').style.display = 'block';
     renderCards(searchVideos);
+    clearListSearch();
     closeResolveModal();
     playWithContext(0, 'search');
 }
@@ -455,7 +472,9 @@ function saveResolvedAll() {
 
 function playResolvedSingle(idx) {
     searchVideos = [resolvedVideos[idx]];
+    document.getElementById('list-search-container').style.display = 'block';
     renderCards(searchVideos);
+    clearListSearch();
     closeResolveModal();
     playWithContext(0, 'search');
 }
@@ -474,6 +493,8 @@ async function startNewSearch() {
     document.getElementById('playlist-header').style.display = 'none';
     document.getElementById('playlist-actions').style.display = 'none';
     document.getElementById('loadMoreBtn').style.display = 'none';
+    document.getElementById('list-search-container').style.display = 'none';
+    clearListSearch();
 
     const isUrl = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/.test(q);
     const isPlaylist = isUrl && q.includes('list=');
@@ -494,6 +515,7 @@ async function startNewSearch() {
                 openResolveModal(data.title, data.videos);
             } else if (data.videos.length > 0) {
                 searchVideos = data.videos;
+                document.getElementById('list-search-container').style.display = 'block';
                 renderCards(searchVideos);
                 playWithContext(0, 'search');
             } else {
@@ -521,13 +543,111 @@ async function fetchPage(isNew = false) {
         hideToast();
         if(isNew) searchVideos = []; data.videos.forEach(v => searchVideos.push(v)); searchHasMore = data.hasMore;
         if(!isFavViewActive) {
+            document.getElementById('list-search-container').style.display = 'block';
             renderCards(searchVideos);
+            if(!isNew) handleListSearch(); 
             loadBtn.style.display = searchHasMore ? 'inline-block' : 'none';
             document.getElementById('ui-load').innerText = i18n[lang].loadMore;
         }
     } catch (e) { 
         hideToast();
         if(!isFavViewActive) showToast(i18n[lang].error, false); 
+    }
+}
+
+function toggleListSearch() {
+    if (window.innerWidth <= 768) {
+        const wrapper = document.getElementById('listSearchWrapper');
+        const input = document.getElementById('listSearchInput');
+        wrapper.classList.add('expanded');
+        setTimeout(() => input.focus(), 300);
+    }
+}
+
+function handleListSearch() {
+    const term = document.getElementById('listSearchInput').value.toLowerCase().trim();
+    const controls = document.getElementById('listSearchControls');
+    const cards = document.querySelectorAll('#results .card');
+    
+    listSearchMatches = [];
+    listSearchCurrentIndex = -1;
+
+    if (!term) {
+        controls.style.display = 'none';
+        cards.forEach(card => {
+            card.classList.remove('search-dimmed', 'search-highlight');
+            const h4 = card.querySelector('h4');
+            if(h4) h4.innerHTML = h4.textContent; 
+        });
+        return;
+    }
+
+    controls.style.display = 'flex';
+
+    cards.forEach(card => {
+        const titleEl = card.querySelector('h4');
+        const authorEl = card.querySelector('.info p');
+        const title = titleEl ? titleEl.textContent : '';
+        const author = authorEl ? authorEl.textContent : '';
+        
+        if (title.toLowerCase().includes(term) || author.toLowerCase().includes(term)) {
+            card.classList.remove('search-dimmed');
+            listSearchMatches.push(card);
+            
+            if (titleEl && term.length > 1) {
+                const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                titleEl.innerHTML = title.replace(regex, '<mark>$1</mark>');
+            }
+        } else {
+            card.classList.add('search-dimmed');
+            card.classList.remove('search-highlight');
+            if (titleEl) titleEl.innerHTML = title;
+        }
+    });
+
+    if (listSearchMatches.length > 0) {
+        navigateListSearch(1, true); 
+    } else {
+        document.getElementById('listSearchMatchCount').innerText = `0/0`;
+    }
+}
+
+function navigateListSearch(direction, isInitial = false) {
+    if (listSearchMatches.length === 0) return;
+
+    if (!isInitial) {
+        if (listSearchCurrentIndex !== -1) {
+            listSearchMatches[listSearchCurrentIndex].classList.remove('search-highlight');
+        }
+
+        listSearchCurrentIndex += direction;
+
+        if (listSearchCurrentIndex >= listSearchMatches.length) listSearchCurrentIndex = 0;
+        if (listSearchCurrentIndex < 0) listSearchCurrentIndex = listSearchMatches.length - 1;
+    } else {
+        listSearchCurrentIndex = 0;
+    }
+
+    const targetCard = listSearchMatches[listSearchCurrentIndex];
+    targetCard.classList.add('search-highlight');
+    
+    document.getElementById('listSearchMatchCount').innerText = `${listSearchCurrentIndex + 1}/${listSearchMatches.length}`;
+
+    const playerHeight = window.innerWidth <= 768 ? 140 : 90;
+    const visibleCenter = (window.innerHeight - playerHeight) / 2;
+    const offset = visibleCenter - (targetCard.offsetHeight / 2);
+    
+    window.scrollTo({ top: targetCard.offsetTop - offset, behavior: 'smooth' });
+}
+
+function clearListSearch() {
+    const input = document.getElementById('listSearchInput');
+    if(input) {
+        input.value = '';
+        handleListSearch();
+        if(window.innerWidth <= 768) {
+            document.getElementById('listSearchWrapper').classList.remove('expanded');
+        }
     }
 }
 
@@ -588,11 +708,9 @@ function renderCards(list) {
     highlightCard();
 }
 
-// SORUNUN ÇÖZÜLDÜĞÜ YER
 function playWithContext(index, context) { 
     const newList = (context === 'fav') ? [...favData[activePlaylist]] : [...searchVideos]; 
     
-    // Eğer o an çalan kuyrukta geçerli bir şarkı varsa ve yeni tıklananla AYNIYSA, sadece duraklat
     if (currentQueueIndex !== -1 && globalQueue.length > currentQueueIndex) {
         const currentVideo = globalQueue[currentQueueIndex];
         if (currentVideo && currentVideo.id === newList[index].id) {
@@ -601,7 +719,6 @@ function playWithContext(index, context) {
         }
     }
 
-    // Farklı bir şarkıysa kuyruğu güncelle ve başlat
     globalQueue = newList;
     startStream(index); 
 }
@@ -641,7 +758,9 @@ function scrollToCurrentCard() {
     if(currentQueueIndex === -1) return;
     const card = document.getElementById(`card-${globalQueue[currentQueueIndex].id}`);
     if(card) {
-        const offset = window.innerHeight / 2 - card.offsetHeight / 2;
+        const playerHeight = window.innerWidth <= 768 ? 140 : 90;
+        const visibleCenter = (window.innerHeight - playerHeight) / 2;
+        const offset = visibleCenter - (card.offsetHeight / 2);
         window.scrollTo({ top: card.offsetTop - offset, behavior: 'smooth' });
     }
 }
@@ -819,6 +938,14 @@ document.addEventListener('click', (e) => {
     if (volContainer && volContainer.classList.contains('active')) {
         if (!volContainer.contains(e.target)) {
             volContainer.classList.remove('active');
+        }
+    }
+    
+    const searchWrapper = document.getElementById('listSearchWrapper');
+    if (searchWrapper && searchWrapper.classList.contains('expanded')) {
+        const input = document.getElementById('listSearchInput');
+        if (!searchWrapper.contains(e.target) && input.value.trim() === '') {
+            searchWrapper.classList.remove('expanded');
         }
     }
 });

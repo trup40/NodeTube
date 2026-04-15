@@ -101,6 +101,21 @@
     
     <div id="playlist-actions" class="playlist-actions" style="display:none;"></div>
 
+    <div id="list-search-container" class="list-search-container" style="display:none;">
+        <div id="listSearchWrapper" class="list-search-wrapper">
+            <button id="listSearchToggleBtn" onclick="toggleListSearch()"><i class="fas fa-search"></i></button>
+            <div id="listSearchInner" class="list-search-inner">
+                <input type="text" id="listSearchInput" oninput="handleListSearch()">
+                <div class="list-search-controls" id="listSearchControls" style="display:none;">
+                    <span id="listSearchMatchCount">0/0</span>
+                    <button onclick="navigateListSearch(-1)" class="nav-btn"><i class="fas fa-chevron-up"></i></button>
+                    <button onclick="navigateListSearch(1)" class="nav-btn"><i class="fas fa-chevron-down"></i></button>
+                    <button onclick="clearListSearch()" class="clear-btn"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="results" class="grid-view">
         <div id="empty-state">
             <i class="fas fa-headphones"></i>
