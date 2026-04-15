@@ -37,6 +37,21 @@ function toggleZenMode() {
     }
 }
 
+let isAmbientActive = localStorage.getItem('nodeTubeAmbient') !== 'false';
+function toggleAmbientMode() {
+    isAmbientActive = !isAmbientActive;
+    localStorage.setItem('nodeTubeAmbient', isAmbientActive);
+    const btn = document.getElementById('ambientToggleBtn');
+    
+    if (isAmbientActive) {
+        btn.style.color = 'var(--primary)';
+        if(currentQueueIndex !== -1) setAmbientColor(globalQueue[currentQueueIndex].thumbnail);
+    } else {
+        btn.style.color = '';
+        document.documentElement.style.setProperty('--ambient-color', 'var(--surface-hover)');
+    }
+}
+
 let toastTimeout;
 function showToast(msg, isLoading = false) {
     const toast = document.getElementById('toast-notification');
@@ -100,6 +115,8 @@ function applyLanguage() {
     
     document.getElementById('langToggleBtn').title = i18n[lang].ttLang;
     document.getElementById('viewToggleBtn').title = i18n[lang].ttView;
+    document.getElementById('zenToggleBtn').title = i18n[lang].ttZenMode;
+    document.getElementById('ambientToggleBtn').title = i18n[lang].ttAmbientMode;
     document.getElementById('favViewBtn').title = i18n[lang].ttFavs;
     document.getElementById('themeToggleBtn').title = i18n[lang].ttTheme;
     document.getElementById('clearInputBtn').title = i18n[lang].ttClear;
@@ -259,6 +276,7 @@ audio.onplay = () => {
 };
 
 window.onload = () => {
+    if (isAmbientActive) document.getElementById('ambientToggleBtn').style.color = 'var(--primary)';
     if(viewMode === 'list') { resultsDiv.className = 'list-view'; viewBtnIcon.className = 'fas fa-list'; }
     else if(viewMode === 'compact') { resultsDiv.className = 'compact-view'; viewBtnIcon.className = 'fas fa-bars'; }
     else { resultsDiv.className = 'grid-view'; viewBtnIcon.className = 'fas fa-th'; }
@@ -1032,6 +1050,10 @@ function updateVolumeIcon(vol) {
 }
 
 function setAmbientColor(imgUrl) {
+    if (!isAmbientActive) {
+        document.documentElement.style.setProperty('--ambient-color', 'var(--surface-hover)');
+        return;
+    }
     const img = new Image();
     img.crossOrigin = "Anonymous";
     img.src = imgUrl;
