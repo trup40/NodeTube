@@ -21,6 +21,43 @@ let resolvedTitle = '';
 
 let lang = localStorage.getItem('nodeTubeLang') || 'tr';
 
+// TOAST BİLDİRİM FONKSİYONLARI EKLENDİ (10 SANİYE ZAMAN AŞIMI DAHİL)
+let toastTimeout;
+function showToast(msg, isLoading = false) {
+    const toast = document.getElementById('toast-notification');
+    const msgEl = document.getElementById('toast-msg');
+    const icon = toast.querySelector('i');
+    
+    msgEl.innerText = msg;
+    if(isLoading) {
+        icon.className = 'fas fa-compact-disc fa-spin';
+        icon.style.color = 'var(--primary)';
+    } else {
+        icon.className = 'fas fa-info-circle';
+        icon.style.color = 'var(--text-muted)';
+    }
+    
+    toast.classList.add('show');
+    
+    clearTimeout(toastTimeout);
+    if(isLoading) {
+        toastTimeout = setTimeout(() => {
+            hideToast();
+            showToast(i18n[lang].error, false);
+            audio.pause();
+            document.getElementById('playBtn').querySelector('i').className = 'fas fa-play';
+        }, 10000); 
+    } else {
+        toastTimeout = setTimeout(() => hideToast(), 3000);
+    }
+}
+
+function hideToast() {
+    const toast = document.getElementById('toast-notification');
+    toast.classList.remove('show');
+    clearTimeout(toastTimeout);
+}
+
 window.addEventListener('scroll', () => {
     const btn = document.getElementById('scrollToTopBtn');
     if (window.scrollY > 300) btn.classList.add('show');
@@ -34,8 +71,7 @@ function scrollToTop() {
 function applyLanguage() {
     document.getElementById('langToggleBtn').innerText = lang === 'tr' ? 'EN' : 'TR';
     document.getElementById('searchInput').placeholder = i18n[lang].search;
-    document.getElementById('ui-prep-title').innerText = i18n[lang].prepTitle;
-    document.getElementById('ui-prep-desc').innerText = i18n[lang].prepDesc;
+    // ESKİ POPUP BAŞLIK VE AÇIKLAMA METİNLERİ SİLİNDİ
     document.getElementById('ui-load').innerText = i18n[lang].loadMore;
     document.getElementById('ui-modal-title').innerText = i18n[lang].modalTitle;
     document.getElementById('new-playlist-name').placeholder = i18n[lang].newPlaylist;
@@ -492,13 +528,13 @@ function renderCards(list) {
 
 function playWithContext(index, context) { globalQueue = (context === 'fav') ? [...favData[activePlaylist]] : [...searchVideos]; startStream(index); }
 
+// TOAST BİLDİRİMİ İÇİN GÜNCELLENEN KISIM
 function startStream(index) {
     if(index < 0 || index >= globalQueue.length) return;
     currentQueueIndex = index; const video = globalQueue[index];
     audio.pause(); audio.removeAttribute('src'); audio.load();
     
-    const popup = document.getElementById('preparing-popup');
-    popup.style.display = 'flex'; setTimeout(() => popup.style.opacity = '1', 10);
+    showToast(`${i18n[lang].prep}...`, true);
     
     document.getElementById('now-playing').innerText = `${i18n[lang].prep} (${currentQueueIndex + 1}/${globalQueue.length}): ${video.title}`;
     document.title = `▶ ${video.title} | NodeTube`;
@@ -510,7 +546,7 @@ function startStream(index) {
 
     audio.src = `/stream?id=${video.id}`; audio.play().catch(() => {});
     audio.onplaying = () => {
-        popup.style.opacity = '0'; setTimeout(() => popup.style.display = 'none', 300);
+        hideToast();
         document.getElementById('now-playing').innerText = `${i18n[lang].play} (${currentQueueIndex + 1}/${globalQueue.length}): ${video.title}`;
         document.getElementById('playBtn').querySelector('i').className = 'fas fa-pause';
         highlightCard(); updatePlayerHeart();
