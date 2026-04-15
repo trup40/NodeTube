@@ -1,6 +1,6 @@
 # 🎵 NodeTube - Free & Ad-Free Music Experience
 
-[English](#english) | [Türkçe](#türkçe)
+[English](#-english) | [Türkçe](#-türkçe)
 
 ---
 
@@ -9,19 +9,26 @@
 **NodeTube** is a high-performance, minimalist Single Page Application (SPA) designed to search, stream, and download music directly from YouTube without ads or tracking. Powered by `Node.js` and `yt-dlp`, it offers a premium music player experience with a modern UI.
 
 ### ✨ Features
+* **Full PWA Support**: Install NodeTube as a standalone native-like application on Desktop and Mobile devices.
+* **Zen & Ambient Modes**: Distraction-free listening with a rotating vinyl UI, and dynamic background colors extracted from track thumbnails.
 * **Search & Stream**: Instant music searching using `yt-dlp`.
 * **Smart URL Parsing**: Paste YouTube playlist or video links directly into the search bar to instantly load, select, or auto-play content.
 * **Ad-Free Experience**: Pure audio streaming without any YouTube ads.
 * **Advanced Playlists**: Create, rename, delete, and horizontally sort multiple custom playlists with a modern modal interface.
+* **Dynamic Lyrics**: Instantly fetch and display lyrics for the currently playing track via LRCLIB.
+* **Smart Navigation**: In-list highlight search (find tracks without breaking the queue), auto-scroll to the currently playing track, and a contextual "Scroll to Top" button.
+* **Interactive UI & Visualizer**: Hover-to-play states, animated CSS audio visualizer bars on active tracks, and track queue tracking (e.g., "14/280") in the player.
+* **Compact View Mode**: A high-density, text-only list view designed for navigating massive playlists effortlessly, complementing the Grid and List views.
+* **Hardware-Accelerated UI**: Silky smooth scrolling for massive playlists using GPU rendering optimizations to prevent screen tearing.
+* **Non-Intrusive Notifications**: Sleek, auto-dismissing toast notifications with smart timeout and override handling, replacing blocking loading modals.
 * **Personal Library**: Add songs to favorites and save them locally using Browser LocalStorage.
-* **Enhanced Player Controls**: Added a sleek vertical volume slider (with click-to-mute), shuffle mode, and continuous playback loop.
+* **Enhanced Player Controls**: Sleek vertical volume slider (with click-to-mute), intelligent shuffle mode (with history tracking), and continuous playback loop.
 * **M4A Downloads**: Download your favorite tracks directly to your device as high-quality `.m4a` files.
 * **System Integration**: Support for `MediaSession API` to control playback via Windows media panel or lock screen.
 * **ModSecurity Bypass**: Implemented HEX-encoded download routing to flawlessly bypass strict server firewalls (e.g., IIS 403 Forbidden).
 * **Modular Architecture**: Restructured the codebase into clean, separate files (HTML, CSS, JS, i18n) for better maintainability.
-* **Responsive UI**: Optimized for both Desktop and Mobile devices with a beautiful "Exo 2" font.
-* **Light/Dark Mode**: Eye-friendly themes that match your system preference.
-* **Multi-Language**: Full support for English and Turkish interfaces.
+* **Refined Themes**: Eye-friendly Dark Mode and a polished Light Mode using pastel/off-white tones for a premium aesthetic.
+* **Expanded Localization**: Full support for English, Turkish, Spanish, German, French, Portuguese, Italian, and Russian via a modern dropdown UI.
 
 ### 🛠 Tech Stack
 * **Backend**: Node.js, Express.js, CORS.
@@ -66,19 +73,26 @@ This project is free and open-source. If you find this useful and would like to 
 **NodeTube**, YouTube üzerinden reklam ve takipçiler olmadan müzik aramanıza, dinlemenize ve indirmenize olanak tanıyan, yüksek performanslı ve minimalist bir Single Page Application (SPA) projesidir. `Node.js` ve `yt-dlp` gücüyle, modern bir arayüzde premium müzik deneyimi sunar.
 
 ### ✨ Özellikler
+* **Tam PWA Desteği (Uygulama Kurulumu)**: NodeTube'u telefonunuza veya bilgisayarınıza bağımsız ve yerel bir uygulama gibi kurun.
+* **Zen ve Ambiyans Modları**: Dönen plak animasyonlu odak modu ve kapak fotoğrafına göre değişen dinamik arka plan aydınlatması ile kesintisiz deneyim.
 * **Arama ve Dinleme**: `yt-dlp` kullanarak anlık müzik arama ve oynatma.
 * **Akıllı URL Çözümleme**: Arama çubuğuna doğrudan YouTube çalma listesi veya video linki yapıştırarak anında listeleme, çoklu seçim yapma veya otomatik oynatma.
 * **Reklamsız Deneyim**: Hiçbir YouTube reklamı olmadan kesintisiz müzik keyfi.
 * **Gelişmiş Çalma Listeleri**: Modern bir arayüz ile birden fazla özel çalma listesi oluşturma, yeniden adlandırma, silme ve yatay olarak sıralama.
+* **Dinamik Şarkı Sözleri (Lyrics)**: Çalan şarkının sözlerini LRCLIB altyapısıyla anında bulup görüntüleme.
+* **Akıllı Navigasyon**: Listeyi bozmayan "sayfada bul" vurgulama araması, çalan şarkıya otomatik kaydırma (auto-scroll) ve pratik "Yukarı Çık" butonu.
+* **İnteraktif Arayüz ve Görselleştirici**: Üzerine gelince beliren oynatma ikonları, çalan şarkıda hareket eden mini CSS ekolayzer çubukları ve oynatıcıda anlık sıra takibi (örn. "14/280").
+* **Kompakt Görünüm Modu**: Devasa listelerde kolay gezinmek için resimsiz, yüksek yoğunluklu yeni metin odaklı liste görünümü.
+* **Donanım Hızlandırmalı Scroll**: Büyük listelerde gezinirken ekran yırtılmasını önleyen, GPU destekli pürüzsüz kaydırma performansı.
+* **Zarif Bildirimler**: Ekranı kilitleyen pencereler yerine, hata ezme (override) ve zaman aşımı korumalı akıllı "Toast" (baloncuk) bildirimleri.
 * **Kişisel Kütüphane**: Şarkıları favorilere ekleme ve LocalStorage kullanarak tarayıcıda saklama.
-* **Gelişmiş Oynatıcı Kontrolleri**: Şık bir dikey ses sürgüsü (tıklayarak susturma), karışık çalma (shuffle) ve kesintisiz müzik döngüsü (loop) eklendi.
+* **Gelişmiş Oynatıcı Kontrolleri**: Dikey ses sürgüsü, akıllı geçmiş takibi yapan karışık çalma (shuffle) ve kesintisiz müzik döngüsü (loop).
 * **M4A İndirme**: Sevdiğiniz şarkıları yüksek kaliteli `.m4a` dosyası olarak cihaza indirme.
 * **Sistem Entegrasyonu**: Windows medya paneli ve kilit ekranı kontrolleri için `MediaSession API` desteği.
 * **ModSecurity Bypass**: Katı sunucu güvenlik duvarlarını (örn. IIS 403 Forbidden) hatasız aşmak için HEX kodlamalı gelişmiş indirme rotası.
 * **Modüler Mimari**: Daha iyi yönetilebilirlik için kod tabanı temiz ve bağımsız dosyalara (HTML, CSS, JS, i18n) ayrıldı.
-* **Duyarlı Tasarım**: "Exo 2" yazı tipiyle hem masaüstü hem de mobil cihazlar için optimize edilmiş arayüz.
-* **Gece/Gündüz Modu**: Göz yormayan, sistem tercihine uyumlu temalar.
-* **Dil Desteği**: Tamamen Türkçe ve İngilizce arayüz seçeneği.
+* **Geliştirilmiş Temalar**: Göz yormayan Dark mod ve saf beyazlığı kırılarak daha premium pastel tonlara çekilmiş Light mod.
+* **Genişletilmiş Dil Desteği**: Şık bir açılır menü ile Türkçe, İngilizce, İspanyolca, Almanca, Fransızca, Portekizce, İtalyanca ve Rusça seçenekleri.
 
 ### 🛠 Teknolojiler
 * **Sunucu**: Node.js, Express.js, CORS.
@@ -95,13 +109,11 @@ This project is free and open-source. If you find this useful and would like to 
 ### 📄 Lisans
 ISC Lisansı altında dağıtılmaktadır. Daha fazla bilgi için `LICENSE` dosyasına bakın.
 
-
 ### 🦅 İletişim
 
 **Geliştirici:** Eagle
 
 **E-posta:** trup40@protonmail.com
-
 
 ## ☕ Bağış Yap
 
