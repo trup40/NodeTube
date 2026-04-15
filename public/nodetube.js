@@ -656,10 +656,7 @@ function navigateListSearch(direction, isInitial = false) {
     
     document.getElementById('listSearchMatchCount').innerText = `${listSearchCurrentIndex + 1}/${listSearchMatches.length}`;
 
-    const playerHeight = window.innerWidth <= 768 ? 140 : 90;
-    const visibleCenter = (window.innerHeight - playerHeight) / 2;
-    const offset = visibleCenter - (targetCard.offsetHeight / 2);
-    
+    const offset = (window.innerHeight / 2) - (targetCard.offsetHeight / 2);
     window.scrollTo({ top: targetCard.offsetTop - offset, behavior: 'smooth' });
 }
 
@@ -714,18 +711,18 @@ function renderCards(list) {
 
         card.innerHTML = `
             ${orderBadgeHtml}
-            <button class="card-fav-btn ${isFav ? 'loved' : ''}" onclick="toggleFav(event, ${idx}, '${context}')" title="${i18n[lang].ttFavToggle}">
-                <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
-            </button>
             <div class="img-wrapper">
                 <div class="play-overlay"><i class="fas fa-play"></i></div>
-                <img src="${v.thumbnail}">
+                <img src="${v.thumbnail}" loading="lazy">
                 <div class="visualizer-container"><span></span><span></span><span></span></div>
             </div>
             <div class="info">
                 <h4>${v.title}</h4>
                 <p>${v.author} • ${v.duration}</p>
             </div>
+            <button class="card-fav-btn ${isFav ? 'loved' : ''}" onclick="toggleFav(event, ${idx}, '${context}')" title="${i18n[lang].ttFavToggle}">
+                <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
+            </button>
         `;
         resultsDiv.appendChild(card);
     });
@@ -784,9 +781,7 @@ function scrollToCurrentCard() {
     if (playingContext === currentViewContext) {
         const card = document.getElementById(`card-${currentQueueIndex}-${globalQueue[currentQueueIndex].id}`);
         if(card) {
-            const playerHeight = window.innerWidth <= 768 ? 140 : 90;
-            const visibleCenter = (window.innerHeight - playerHeight) / 2;
-            const offset = visibleCenter - (card.offsetHeight / 2);
+            const offset = (window.innerHeight / 2) - (card.offsetHeight / 2);
             window.scrollTo({ top: card.offsetTop - offset, behavior: 'smooth' });
         }
     }

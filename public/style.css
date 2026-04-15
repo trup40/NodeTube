@@ -1,6 +1,7 @@
 /* by trup40 (Eagle) */
 /* https://github.com/trup40/NodeTube */
 /* 2026 */
+
 :root {
     --bg-color: #0f172a; --surface: #1e293b; --surface-hover: #334155;
     --primary: #10b981; --primary-hover: #059669; --text-main: #f8fafc;
@@ -132,7 +133,7 @@ button.main-btn:hover { opacity: 0.9; }
     #listSearchMatchCount { font-size: 11px; }
 }
 
-#results { display: grid; gap: 20px; max-width: 1300px; margin: 20px auto 25px auto; padding: 0 20px; contain: content; }
+#results { display: grid; gap: 20px; max-width: 1300px; margin: 20px auto 25px auto; padding: 0 20px; transition: 0.3s; }
 
 .img-wrapper { position: relative; display: flex; flex-shrink: 0; border-radius: 8px; overflow: hidden; background-color: var(--surface-hover); transform: translateZ(0); }
 .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
@@ -203,7 +204,6 @@ button.main-btn:hover { opacity: 0.9; }
 #scrollToTopBtn { position: fixed; bottom: 120px; right: 20px; width: 45px; height: 45px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 18px; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; transform: translateY(20px); }
 #scrollToTopBtn.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
 #scrollToTopBtn:hover { background: var(--primary-hover); transform: translateY(-3px); }
-@media (max-width: 768px) { #scrollToTopBtn { bottom: 160px; right: 15px; } }
 
 #empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); grid-column: 1 / -1; }
 #empty-state i { font-size: 45px; margin-bottom: 15px; opacity: 0.4; }
@@ -262,6 +262,22 @@ input[type="range"] { flex: 1; cursor: pointer; accent-color: var(--primary); he
 #volumeBar { width: 80px; margin: 0; transform: rotate(-90deg); transform-origin: center; touch-action: none; }
 
 @media (max-width: 768px) {
+    body { padding-bottom: 380px; }
+    #scrollToTopBtn { bottom: 160px; right: 15px; }
+    
+    .list-search-container { left: 15px; transform: none; bottom: 170px; }
+    .list-search-wrapper { width: 45px; height: 45px; padding: 0; background: var(--primary); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); border: none; justify-content: center; }
+    #listSearchToggleBtn { color: white; width: 45px; height: 45px; margin-left: 0; pointer-events: auto; }
+    .list-search-inner { width: 0; opacity: 0; pointer-events: none; overflow: hidden; }
+    
+    .list-search-wrapper.expanded { width: calc(100vw - 30px); background: var(--player-bg); border: 1px solid var(--primary); padding: 5px 10px 5px 5px; justify-content: flex-start; }
+    .list-search-wrapper.expanded #listSearchToggleBtn { background: transparent; color: var(--text-muted); width: 36px; height: 36px; margin-left: 5px; pointer-events: none; }
+    .list-search-wrapper.expanded .list-search-inner { width: 100%; opacity: 1; pointer-events: auto; }
+    
+    .list-search-controls { gap: 5px; padding-left: 8px; margin-left: 5px; }
+    .list-search-controls button { width: 24px; height: 24px; font-size: 12px; }
+    #listSearchMatchCount { font-size: 11px; }
+
     .player-controls { flex-direction: column; gap: 10px; justify-content: center; }
     .progress-row { order: 1; flex: 1 1 100%; width: 100%; padding: 0; margin-bottom: 5px; min-width: unset; }
     .mobile-buttons { display: flex; order: 2; justify-content: center; width: 100%; gap: 10px; align-items: center; flex-wrap: nowrap; }
