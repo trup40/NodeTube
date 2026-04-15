@@ -1,7 +1,3 @@
-// by trup40 (Eagle) 
-// https://github.com/trup40/NodeTube
-// 2026
-
 let favData = JSON.parse(localStorage.getItem('nodeTubeFavs'));
 if (Array.isArray(favData)) {
     favData = { "default": favData };
@@ -133,6 +129,7 @@ let searchVideos = []; let searchHasMore = false;
 let isFavViewActive = false; 
 let viewMode = localStorage.getItem('nodeTubeView') || 'grid'; 
 let globalQueue = []; let currentQueueIndex = -1;
+let playingContext = '';
 let isShuffle = false;
 
 const audio = document.getElementById('mainAudio');
@@ -165,14 +162,17 @@ function initAudioAnalyzer() {
 function drawVisualizer() {
     requestAnimationFrame(drawVisualizer);
     
-    if (!audioCtx || audio.paused || currentQueueIndex === -1) {
-        const activeCard = document.getElementById(`card-${globalQueue[currentQueueIndex]?.id}`);
-        if (activeCard) {
-            const spans = activeCard.querySelectorAll('.visualizer-container span');
-            if (spans.length === 3) {
-                spans[0].style.height = '3px';
-                spans[1].style.height = '3px';
-                spans[2].style.height = '3px';
+    const currentViewContext = isFavViewActive ? activePlaylist : 'search';
+    if (!audioCtx || audio.paused || currentQueueIndex === -1 || playingContext !== currentViewContext) {
+        if (playingContext === currentViewContext && currentQueueIndex !== -1) {
+            const activeCard = document.getElementById(`card-${currentQueueIndex}-${globalQueue[currentQueueIndex]?.id}`);
+            if (activeCard) {
+                const spans = activeCard.querySelectorAll('.visualizer-container span');
+                if (spans.length === 3) {
+                    spans[0].style.height = '3px';
+                    spans[1].style.height = '3px';
+                    spans[2].style.height = '3px';
+                }
             }
         }
         return;
@@ -180,7 +180,7 @@ function drawVisualizer() {
 
     analyser.getByteFrequencyData(dataArray);
 
-    const activeCard = document.getElementById(`card-${globalQueue[currentQueueIndex].id}`);
+    const activeCard = document.getElementById(`card-${currentQueueIndex}-${globalQueue[currentQueueIndex].id}`);
     if (activeCard) {
         const spans = activeCard.querySelectorAll('.visualizer-container span');
         if (spans.length === 3) {
@@ -190,6 +190,16 @@ function drawVisualizer() {
         }
     }
 }
+
+audio.onpause = () => {
+    const active = document.querySelector('.card.playing');
+    if(active) active.classList.add('paused');
+};
+
+audio.onplay = () => {
+    const active = document.querySelector('.card.playing');
+    if(active) active.classList.remove('paused');
+};
 
 window.onload = () => {
     if(viewMode === 'list') { resultsDiv.classList.replace('grid-view', 'list-view'); viewBtnIcon.className = 'fas fa-list'; }
@@ -327,6 +337,13 @@ function moveActivePlaylist(direction) {
     favData = newData;
     
     saveFavorites();
+
+    if (isFavViewActive && currentQueueIndex !== -1 && playingContext === activePlaylist) {
+        const playingId = globalQueue[currentQueueIndex].id;
+        globalQueue = [...favData[activePlaylist]];
+        currentQueueIndex = globalQueue.findIndex(v => v.id === playingId);
+    }
+
     renderFavoritesView();
 
     setTimeout(() => {
@@ -368,8 +385,10 @@ function renameActivePlaylist() {
                 }
             });
             favData = newData;
-            activePlaylist = trimmed;
             
+            if (playingContext === activePlaylist) playingContext = trimmed;
+            
+            activePlaylist = trimmed;
             saveFavorites();
             renderFavoritesView();
         }
@@ -662,7 +681,7 @@ function moveFav(index, direction, event) {
     list[newIndex] = temp;
     saveFavorites();
 
-    if (isFavViewActive && currentQueueIndex !== -1) {
+    if (isFavViewActive && currentQueueIndex !== -1 && playingContext === activePlaylist) {
         const playingId = globalQueue[currentQueueIndex].id;
         globalQueue = [...list];
         currentQueueIndex = globalQueue.findIndex(v => v.id === playingId);
@@ -674,7 +693,8 @@ function renderCards(list) {
     resultsDiv.innerHTML = ''; const context = isFavViewActive ? 'fav' : 'search';
     list.forEach((v, idx) => {
         const isFav = checkIsFav(v.id);
-        const card = document.createElement('div'); card.className = 'card'; card.id = `card-${v.id}`;
+        const card = document.createElement('div'); card.className = 'card'; 
+        card.id = `card-${idx}-${v.id}`;
         card.onclick = () => playWithContext(idx, context);
         
         let orderBadgeHtml = '';
@@ -710,16 +730,15 @@ function renderCards(list) {
 
 function playWithContext(index, context) { 
     const newList = (context === 'fav') ? [...favData[activePlaylist]] : [...searchVideos]; 
+    const targetContextName = (context === 'fav') ? activePlaylist : 'search';
     
-    if (currentQueueIndex !== -1 && globalQueue.length > currentQueueIndex) {
-        const currentVideo = globalQueue[currentQueueIndex];
-        if (currentVideo && currentVideo.id === newList[index].id) {
-            togglePlay();
-            return;
-        }
+    if (playingContext === targetContextName && currentQueueIndex === index) {
+        togglePlay();
+        return;
     }
 
     globalQueue = newList;
+    playingContext = targetContextName;
     startStream(index); 
 }
 
@@ -756,12 +775,16 @@ function startStream(index) {
 
 function scrollToCurrentCard() {
     if(currentQueueIndex === -1) return;
-    const card = document.getElementById(`card-${globalQueue[currentQueueIndex].id}`);
-    if(card) {
-        const playerHeight = window.innerWidth <= 768 ? 140 : 90;
-        const visibleCenter = (window.innerHeight - playerHeight) / 2;
-        const offset = visibleCenter - (card.offsetHeight / 2);
-        window.scrollTo({ top: card.offsetTop - offset, behavior: 'smooth' });
+    const currentViewContext = isFavViewActive ? activePlaylist : 'search';
+    
+    if (playingContext === currentViewContext) {
+        const card = document.getElementById(`card-${currentQueueIndex}-${globalQueue[currentQueueIndex].id}`);
+        if(card) {
+            const playerHeight = window.innerWidth <= 768 ? 140 : 90;
+            const visibleCenter = (window.innerHeight - playerHeight) / 2;
+            const offset = visibleCenter - (card.offsetHeight / 2);
+            window.scrollTo({ top: card.offsetTop - offset, behavior: 'smooth' });
+        }
     }
 }
 
@@ -863,8 +886,12 @@ function updatePlayerHeart() {
 function highlightCard() {
     document.querySelectorAll('.card').forEach(c => c.classList.remove('playing'));
     if(currentQueueIndex === -1) return;
-    const card = document.getElementById(`card-${globalQueue[currentQueueIndex].id}`);
-    if(card) card.classList.add('playing');
+    
+    const currentViewContext = isFavViewActive ? activePlaylist : 'search';
+    if (playingContext === currentViewContext) {
+        const card = document.getElementById(`card-${currentQueueIndex}-${globalQueue[currentQueueIndex].id}`);
+        if(card) card.classList.add('playing');
+    }
 }
 
 function togglePlay() { 
