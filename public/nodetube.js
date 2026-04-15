@@ -21,6 +21,16 @@ let resolvedTitle = '';
 
 let lang = localStorage.getItem('nodeTubeLang') || 'tr';
 
+window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scrollToTopBtn');
+    if (window.scrollY > 300) btn.classList.add('show');
+    else btn.classList.remove('show');
+});
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function applyLanguage() {
     document.getElementById('langToggleBtn').innerText = lang === 'tr' ? 'EN' : 'TR';
     document.getElementById('searchInput').placeholder = i18n[lang].search;
@@ -61,7 +71,7 @@ function applyLanguage() {
     const np = document.getElementById('now-playing');
     if(audio.src === "") { np.innerText = i18n[lang].wait; document.title = i18n[lang].pageTitle; } 
     else if(currentQueueIndex !== -1) {
-        np.innerText = `${audio.paused ? i18n[lang].prep : i18n[lang].play}: ${globalQueue[currentQueueIndex].title}`;
+        np.innerText = `${audio.paused ? i18n[lang].prep : i18n[lang].play} (${currentQueueIndex + 1}/${globalQueue.length}): ${globalQueue[currentQueueIndex].title}`;
         document.title = `▶ ${globalQueue[currentQueueIndex].title} | NodeTube`;
     }
     
@@ -490,7 +500,7 @@ function startStream(index) {
     const popup = document.getElementById('preparing-popup');
     popup.style.display = 'flex'; setTimeout(() => popup.style.opacity = '1', 10);
     
-    document.getElementById('now-playing').innerText = `${i18n[lang].prep}: ${video.title}`;
+    document.getElementById('now-playing').innerText = `${i18n[lang].prep} (${currentQueueIndex + 1}/${globalQueue.length}): ${video.title}`;
     document.title = `▶ ${video.title} | NodeTube`;
 
     if ('mediaSession' in navigator) {
@@ -501,10 +511,17 @@ function startStream(index) {
     audio.src = `/stream?id=${video.id}`; audio.play().catch(() => {});
     audio.onplaying = () => {
         popup.style.opacity = '0'; setTimeout(() => popup.style.display = 'none', 300);
-        document.getElementById('now-playing').innerText = `${i18n[lang].play}: ${video.title}`;
+        document.getElementById('now-playing').innerText = `${i18n[lang].play} (${currentQueueIndex + 1}/${globalQueue.length}): ${video.title}`;
         document.getElementById('playBtn').querySelector('i').className = 'fas fa-pause';
         highlightCard(); updatePlayerHeart();
+        scrollToCurrentCard();
     };
+}
+
+function scrollToCurrentCard() {
+    if(currentQueueIndex === -1) return;
+    const card = document.getElementById(`card-${globalQueue[currentQueueIndex].id}`);
+    if(card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function toggleShuffle() {
