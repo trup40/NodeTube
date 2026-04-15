@@ -1,3 +1,7 @@
+// by trup40 (Eagle) 
+// https://github.com/trup40/NodeTube
+// 2026
+
 let favData = JSON.parse(localStorage.getItem('nodeTubeFavs'));
 if (Array.isArray(favData)) {
     favData = { "default": favData };
@@ -715,7 +719,7 @@ function renderCards(list) {
             </button>
             <div class="img-wrapper">
                 <div class="play-overlay"><i class="fas fa-play"></i></div>
-                <img src="${v.thumbnail}" loading="lazy">
+                <img src="${v.thumbnail}">
                 <div class="visualizer-container"><span></span><span></span><span></span></div>
             </div>
             <div class="info">
