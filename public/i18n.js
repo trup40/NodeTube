@@ -24,7 +24,8 @@ const i18n = {
         ttMoveLeft: "Sola Taşı", ttMoveRight: "Sağa Taşı",
         resPlayAll: "Tümünü Oynat", resSaveAll: "Tümünü Kaydet",
         ttShuffle: "Karışık Çal",
-        listSearchPlaceholder: "Liste içinde bul..."
+        listSearchPlaceholder: "Liste içinde bul...",
+        orChooseList: "ya da listelerinizden seçin"
     },
     en: {
         pageTitle: "NodeTube | Free Music", search: "Search songs, artists or paste URL...", loadMore: "LOAD MORE",
@@ -47,7 +48,8 @@ const i18n = {
         ttMoveLeft: "Move Left", ttMoveRight: "Move Right",
         resPlayAll: "Play All", resSaveAll: "Save All",
         ttShuffle: "Shuffle",
-        listSearchPlaceholder: "Find in playlist..."
+        listSearchPlaceholder: "Find in playlist...",
+        orChooseList: "or choose from your playlists"
     },
     es: {
         pageTitle: "NodeTube | Música Libre", search: "Buscar canciones, artistas o pegar URL...", loadMore: "CARGAR MÁS",
@@ -70,7 +72,8 @@ const i18n = {
         ttMoveLeft: "Mover a la Izquierda", ttMoveRight: "Mover a la Derecha",
         resPlayAll: "Reproducir Todo", resSaveAll: "Guardar Todo",
         ttShuffle: "Aleatorio",
-        listSearchPlaceholder: "Buscar en la lista..."
+        listSearchPlaceholder: "Buscar en la lista...",
+        orChooseList: "o elige de tus listas"
     },
     de: {
         pageTitle: "NodeTube | Freie Musik", search: "Suche nach Songs, Künstlern oder URL einfügen...", loadMore: "MEHR LADEN",
@@ -93,7 +96,8 @@ const i18n = {
         ttMoveLeft: "Nach links", ttMoveRight: "Nach rechts",
         resPlayAll: "Alle abspielen", resSaveAll: "Alle speichern",
         ttShuffle: "Zufällig",
-        listSearchPlaceholder: "In Playlist suchen..."
+        listSearchPlaceholder: "In Playlist suchen...",
+        orChooseList: "oder wähle aus deinen Playlists"
     },
     fr: {
         pageTitle: "NodeTube | Musique Libre", search: "Rechercher des chansons, des artistes ou coller une URL...", loadMore: "CHARGER PLUS",
@@ -116,7 +120,8 @@ const i18n = {
         ttMoveLeft: "Déplacer à Gauche", ttMoveRight: "Déplacer à Droite",
         resPlayAll: "Tout lire", resSaveAll: "Tout enregistrer",
         ttShuffle: "Aléatoire",
-        listSearchPlaceholder: "Rechercher dans la liste..."
+        listSearchPlaceholder: "Rechercher dans la liste...",
+        orChooseList: "ou choisissez parmi vos listes"
     },
     pt: {
         pageTitle: "NodeTube | Música Livre", search: "Buscar músicas, artistas ou colar URL...", loadMore: "CARREGAR MAIS",
@@ -139,7 +144,8 @@ const i18n = {
         ttMoveLeft: "Mover para Esquerda", ttMoveRight: "Mover para Direita",
         resPlayAll: "Tocar Tudo", resSaveAll: "Salvar Tudo",
         ttShuffle: "Aleatório",
-        listSearchPlaceholder: "Buscar na lista..."
+        listSearchPlaceholder: "Buscar na lista...",
+        orChooseList: "ou escolha de suas listas"
     },
     it: {
         pageTitle: "NodeTube | Musica Libera", search: "Cerca canzoni, artisti o incolla URL...", loadMore: "CARICA ALTRO",
@@ -162,7 +168,8 @@ const i18n = {
         ttMoveLeft: "Sposta a Sinistra", ttMoveRight: "Sposta a Destra",
         resPlayAll: "Riproduci Tutto", resSaveAll: "Salva Tutto",
         ttShuffle: "Casuale",
-        listSearchPlaceholder: "Cerca nella lista..."
+        listSearchPlaceholder: "Cerca nella lista...",
+        orChooseList: "o scegli dalle tue liste"
     },
     ru: {
         pageTitle: "NodeTube | Свободная Музыка", search: "Поиск песен, артистов или вставьте URL...", loadMore: "ЗАГРУЗИТЬ ЕЩЕ",
@@ -185,6 +192,7 @@ const i18n = {
         ttMoveLeft: "Влево", ttMoveRight: "Вправо",
         resPlayAll: "Воспроизвести все", resSaveAll: "Сохранить все",
         ttShuffle: "Перемешать",
-        listSearchPlaceholder: "Найти в плейлисте..."
+        listSearchPlaceholder: "Найти в плейлисте...",
+        orChooseList: "или выберите из своих плейлистов"
     }
 };

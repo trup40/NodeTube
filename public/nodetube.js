@@ -131,8 +131,40 @@ function setLang(newLang) {
 function updateEmptyState() {
     const container = document.getElementById('results');
     if(container.innerHTML.includes('id="empty-state"')) {
-        if(isFavViewActive) container.innerHTML = `<div id="empty-state"><i class="far fa-heart"></i><h3>${i18n[lang].favTitle}</h3><p>${i18n[lang].favDesc}</p></div>`;
-        else container.innerHTML = `<div id="empty-state"><i class="fas fa-headphones"></i><h3 id="ui-empty-title">${i18n[lang].emptyTitle}</h3><p id="ui-empty-desc">${i18n[lang].emptyDesc}</p></div>`;
+        if(isFavViewActive) {
+            container.innerHTML = `<div id="empty-state"><i class="far fa-heart"></i><h3>${i18n[lang].favTitle}</h3><p>${i18n[lang].favDesc}</p></div>`;
+        } else {
+            let quickPlaylistsHtml = '';
+            const nonEmptyLists = Object.keys(favData).filter(k => favData[k] && favData[k].length > 0);
+            
+            if (nonEmptyLists.length > 0) {
+                quickPlaylistsHtml = `<div class="quick-playlists-wrapper">
+                    <p class="quick-playlists-title">${i18n[lang].orChooseList}</p>
+                    <div class="quick-playlists">
+                        ${nonEmptyLists.map(k => {
+                            const dispName = k === 'default' ? i18n[lang].defaultPlaylist : k;
+                            return `<button class="quick-pl-btn" onclick="openPlaylistFromHome('${k}')"><i class="fas fa-list-ul"></i> ${dispName}</button>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            }
+
+            container.innerHTML = `<div id="empty-state">
+                <i class="fas fa-headphones"></i>
+                <h3 id="ui-empty-title">${i18n[lang].emptyTitle}</h3>
+                <p id="ui-empty-desc">${i18n[lang].emptyDesc}</p>
+                ${quickPlaylistsHtml}
+            </div>`;
+        }
+    }
+}
+
+function openPlaylistFromHome(name) {
+    activePlaylist = name;
+    if (!isFavViewActive) {
+        toggleFavoritesView();
+    } else {
+        switchPlaylist(name);
     }
 }
 
@@ -237,7 +269,8 @@ function resetApp() {
     document.getElementById('playlist-header').style.display = 'none';
     document.getElementById('playlist-actions').style.display = 'none';
     document.getElementById('list-search-container').style.display = 'none';
-    resultsDiv.innerHTML = `<div id="empty-state"><i class="fas fa-headphones"></i><h3 id="ui-empty-title">${i18n[lang].emptyTitle}</h3><p id="ui-empty-desc">${i18n[lang].emptyDesc}</p></div>`;
+    resultsDiv.innerHTML = `<div id="empty-state"></div>`;
+    updateEmptyState();
     document.getElementById('loadMoreBtn').style.display = 'none'; document.title = i18n[lang].pageTitle;
 }
 
