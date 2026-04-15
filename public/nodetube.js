@@ -815,6 +815,7 @@ function startStream(index) {
     }
 
     audio.src = `/stream?id=${video.id}`; 
+    setAmbientColor(video.thumbnail);
     initAudioAnalyzer();
     
     audio.play().catch(() => {});
@@ -1013,6 +1014,35 @@ function updateVolumeIcon(vol) {
     if (vol == 0) icon.className = 'fas fa-volume-mute';
     else if (vol < 0.5) icon.className = 'fas fa-volume-down';
     else icon.className = 'fas fa-volume-up';
+}
+
+function setAmbientColor(imgUrl) {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = imgUrl;
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        try {
+            const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            let r = 0, g = 0, b = 0, count = 0;
+            for (let i = 0; i < data.length; i += 16) { 
+                r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+            }
+            r = Math.floor(r / count); g = Math.floor(g / count); b = Math.floor(b / count);
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            const opacity = isLight ? 0.5 : 0.7;
+            document.documentElement.style.setProperty('--ambient-color', `rgba(${r}, ${g}, ${b}, ${opacity})`);
+        } catch(e) {
+            document.documentElement.style.setProperty('--ambient-color', 'var(--surface-hover)');
+        }
+    };
+    img.onerror = () => {
+        document.documentElement.style.setProperty('--ambient-color', 'var(--surface-hover)');
+    };
 }
 
 document.addEventListener('click', (e) => {
