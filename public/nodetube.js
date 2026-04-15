@@ -206,6 +206,7 @@ let viewMode = localStorage.getItem('nodeTubeView') || 'grid';
 let globalQueue = []; let currentQueueIndex = -1;
 let playingContext = '';
 let isShuffle = false;
+let playHistory = [];
 
 const audio = document.getElementById('mainAudio');
 const resultsDiv = document.getElementById('results');
@@ -826,6 +827,12 @@ function playWithContext(index, context) {
         return;
     }
 
+    if (playingContext !== targetContextName) {
+        playHistory = [];
+    } else if (isShuffle && currentQueueIndex !== -1) {
+        addToHistory(currentQueueIndex);
+    }
+
     globalQueue = newList;
     playingContext = targetContextName;
     startStream(index); 
@@ -833,7 +840,10 @@ function playWithContext(index, context) {
 
 function startStream(index) {
     if(index < 0 || index >= globalQueue.length) return;
-    currentQueueIndex = index; const video = globalQueue[index];
+    currentQueueIndex = index; 
+    const video = globalQueue[index];
+    
+    updatePrevButtonState();
     
     highlightCard();
     scrollToCurrentCard();
@@ -885,25 +895,42 @@ function scrollToCurrentCard() {
 function toggleShuffle() {
     isShuffle = !isShuffle;
     document.getElementById('shuffleBtn').classList.toggle('active', isShuffle);
+    if (!isShuffle) {
+        playHistory = [];
+    }
+    updatePrevButtonState();
 }
 
 function playNext() {
     if(globalQueue.length === 0) return;
+
     if(isShuffle && globalQueue.length > 1) {
+        addToHistory(currentQueueIndex);
         let nextIdx;
         do {
             nextIdx = Math.floor(Math.random() * globalQueue.length);
         } while (nextIdx === currentQueueIndex);
         startStream(nextIdx);
     } else {
-        if(currentQueueIndex < globalQueue.length - 1) startStream(currentQueueIndex + 1); 
-        else startStream(0); 
+        if(currentQueueIndex < globalQueue.length - 1) {
+            startStream(currentQueueIndex + 1);
+        } else {
+            startStream(0);
+        }
     }
 }
 
-function playPrevious() { 
-    if(currentQueueIndex > 0) startStream(currentQueueIndex - 1); 
-    else if (globalQueue.length > 0) startStream(globalQueue.length - 1); 
+function playPrevious() {
+    if (isShuffle) {
+        if (playHistory.length > 0) {
+            const prevIdx = playHistory.pop();
+            startStream(prevIdx);
+        }
+    } else {
+        if (currentQueueIndex > 0) {
+            startStream(currentQueueIndex - 1);
+        }
+    }
 }
 
 function toggleFav(e, idx, context) {
@@ -1152,6 +1179,33 @@ function toggleLyricsModal() {
 function closeLyricsModal(e) {
     if (e.target.id === 'lyrics-modal') {
         toggleLyricsModal();
+    }
+}
+
+function addToHistory(idx) {
+    playHistory.push(idx);
+    if (playHistory.length > 10) playHistory.shift();
+}
+
+function updatePrevButtonState() {
+    const prevBtn = document.getElementById('prevBtn');
+    if (!prevBtn) return;
+
+    let canGoBack = false;
+    if (isShuffle) {
+        canGoBack = playHistory.length > 0;
+    } else {
+        canGoBack = currentQueueIndex > 0;
+    }
+
+    if (canGoBack) {
+        prevBtn.style.opacity = '1';
+        prevBtn.style.cursor = 'pointer';
+        prevBtn.disabled = false;
+    } else {
+        prevBtn.style.opacity = '0.3';
+        prevBtn.style.cursor = 'not-allowed';
+        prevBtn.disabled = true;
     }
 }
 
