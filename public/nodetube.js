@@ -834,6 +834,11 @@ function playWithContext(index, context) {
 function startStream(index) {
     if(index < 0 || index >= globalQueue.length) return;
     currentQueueIndex = index; const video = globalQueue[index];
+    
+    highlightCard();
+    scrollToCurrentCard();
+    updatePlayerHeart();
+
     audio.pause(); audio.removeAttribute('src'); audio.load();
     
     showToast(`${i18n[lang].prep}...`, true);
@@ -853,6 +858,7 @@ function startStream(index) {
     initAudioAnalyzer();
     
     audio.play().catch(() => {});
+    
     audio.onplaying = () => {
         hideToast();
         const active = document.querySelector('.card.playing');
@@ -860,8 +866,6 @@ function startStream(index) {
         
         document.getElementById('now-playing').innerText = `${i18n[lang].play} (${currentQueueIndex + 1}/${globalQueue.length}): ${video.title}`;
         document.getElementById('playBtn').querySelector('i').className = 'fas fa-pause';
-        highlightCard(); updatePlayerHeart();
-        scrollToCurrentCard();
     };
 }
 
