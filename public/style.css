@@ -316,7 +316,7 @@ input[type="range"] { flex: 1; cursor: pointer; accent-color: var(--primary); he
     #listSearchMatchCount { font-size: 11px; }
 
     .player-controls { flex-direction: column; gap: 10px; justify-content: center; }
-    .progress-row { order: 1; flex: 1 1 100%; width: 100%; padding: 0; margin-bottom: 5px; min-width: unset; }
+    .progress-row { order: 1; flex: 1 1 100%; width: 100%; padding: 0; margin-bottom: 7px; min-width: unset; }
     .mobile-buttons { display: flex; order: 2; justify-content: center; width: 100%; gap: 10px; align-items: center; flex-wrap: nowrap; }
     .play-btns { width: auto; gap: 3px; padding: 0; justify-content: center; order: unset; }
     .action-btns { width: auto; gap: 3px; padding: 0; justify-content: center; order: unset; }
