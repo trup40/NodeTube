@@ -1,7 +1,7 @@
 {
   "name": "nodetube",
-  "version": "1.0.0",
-  "description": "Özgür ve reklamsız müzik dinleme platformu",
+  "version": "4.0.0",
+  "description": "The Ultimate Music Freedom",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
