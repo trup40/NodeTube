@@ -30,6 +30,19 @@
 * **Refined Themes**: Eye-friendly Dark Mode and a polished Light Mode using pastel/off-white tones for a premium aesthetic.
 * **Expanded Localization**: Full support for English, Turkish, Spanish, German, French, Portuguese, Italian, and Russian via a modern dropdown UI.
 
+#### Theme & Appearance
+| Desktop |
+|:---:|
+| <img src="screenshots/desktop-dark-grid.jpg" width="800">
+| <img src="screenshots/desktop-dark-list.jpg" width="800">
+| <img src="screenshots/desktop-light-compact.jpg" width="800">
+| <img src="screenshots/desktop-dark-zen.jpg" width="800">
+
+| Mobile | Mobile |
+|:---:|:---:|
+| <img src="screenshots/mobile-dark.jpg" width="350"> | <img src="screenshots/mobile-multilang.jpg" width="350"> |
+
+
 ### 🛠 Tech Stack
 * **Backend**: Node.js, Express.js, CORS.
 * **Streaming Engine**: `yt-dlp.exe`.
